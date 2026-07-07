@@ -1,0 +1,90 @@
+{
+  "venue": {
+    "name": "International Conference Centre",
+    "shortName": "ICC Maiduguri",
+    "latitude": 11.8333,
+    "longitude": 13.15,
+    "image": "/venues/icc-maiduguri.jpg"
+  },
+  "shuttle": "Delegate shuttle buses depart ICC main entrance every 30 minutes (7:30 AM–9:00 PM) for partner hotels on the Damboa Road corridor.",
+  "parking": "On-site parking at ICC with security. Follow marshals at the main gate. VIP drop-off at the lobby canopy.",
+  "directions": [
+    "From Maiduguri Airport: ~45 min via Airport Road → Baga Road → ICC.",
+    "From city centre: Head east on Baga Road; ICC is signed from Damboa Road junction.",
+    "Conference registration opens 7:00 AM daily at Main Lobby."
+  ],
+  "nearby": [
+    {
+      "id": "dandal-kura",
+      "name": "Dandal Kura Restaurant",
+      "category": "Restaurant",
+      "distance": "1.2 km",
+      "distanceKm": 1.2,
+      "latitude": 11.842,
+      "longitude": 13.158,
+      "note": "Local cuisine, delegate-friendly hours",
+      "query": "Dandal Kura Restaurant Maiduguri",
+      "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80"
+    },
+    {
+      "id": "ashaka-pharmacy",
+      "name": "Ashaka Pharmacy",
+      "category": "Pharmacy",
+      "distance": "0.8 km",
+      "distanceKm": 0.8,
+      "latitude": 11.838,
+      "longitude": 13.152,
+      "note": "OTC medicines and essentials",
+      "query": "pharmacy near Maiduguri ICC",
+      "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80"
+    },
+    {
+      "id": "zenith-atm",
+      "name": "Zenith Bank ATM",
+      "category": "ATM",
+      "distance": "0.5 km",
+      "distanceKm": 0.5,
+      "latitude": 11.835,
+      "longitude": 13.148,
+      "note": "Baga Road branch",
+      "query": "Zenith Bank ATM Baga Road Maiduguri",
+      "image": "https://images.unsplash.com/photo-1563013547-824ae1b704d3?w=400&q=80"
+    },
+    {
+      "id": "monday-market",
+      "name": "Monday Market",
+      "category": "Shopping",
+      "distance": "3.5 km",
+      "distanceKm": 3.5,
+      "latitude": 11.86,
+      "longitude": 13.17,
+      "note": "Textiles, crafts, and local goods",
+      "query": "Monday Market Maiduguri",
+      "image": "https://images.unsplash.com/photo-1555529669-2269763671c8?w=400&q=80"
+    },
+    {
+      "id": "unimaid",
+      "name": "University of Maiduguri",
+      "category": "Spouses visit",
+      "distance": "4 km",
+      "distanceKm": 4.0,
+      "latitude": 11.808,
+      "longitude": 13.185,
+      "note": "Spouses programme cultural visit",
+      "query": "University of Maiduguri",
+      "image": "https://images.unsplash.com/photo-1562774053-701939374585?w=400&q=80"
+    },
+    {
+      "id": "borno-hospital",
+      "name": "Borno State Specialist Hospital",
+      "category": "Medical",
+      "distance": "2.1 km",
+      "distanceKm": 2.1,
+      "latitude": 11.825,
+      "longitude": 13.165,
+      "note": "Emergency care if needed",
+      "query": "Borno State Specialist Hospital Maiduguri",
+      "image": "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&q=80"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+name: nse_mobile
+description: NSE Conference 2026 mobile app for iOS and Android.
+publish_to: 'none'
+version: 1.0.2+3
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_dotenv: ^5.2.1
+  flutter_markdown: ^0.7.7
+  flutter_riverpod: ^2.6.1
+  go_router: ^16.2.0
+  google_maps_flutter: ^2.12.1
+  http: ^1.6.0
+  intl: ^0.20.2
+  shared_preferences: ^2.5.5
+  supabase_flutter: ^2.9.1
+  url_launcher: ^6.3.2
+  cached_network_image: ^3.4.1
+  video_player: ^2.9.2
+  flutter_map: ^8.3.1
+  flutter_map_rastercoords: ^0.0.4
+  latlong2: ^0.9.1
+  mobile_scanner: ^7.2.0
+  image_picker: ^1.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/app_icon.png
+  adaptive_icon_background: "#123E73"
+  adaptive_icon_foreground: assets/images/app_icon_foreground.png
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash_logo.png
+  branding: assets/images/splash_branding.png
+  branding_bottom_padding: 56
+  android_gravity: center
+  ios_content_mode: center
+  fullscreen: true
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/splash_android12.png
+    icon_background_color: "#FFFFFF"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - assets/data/hotels.json
+    - assets/data/conference_info.json
+    - assets/images/nse_logo.png
+    - assets/images/nse_crest.png
+    - assets/images/splash_logo.png
+    - assets/images/splash_branding.png
+    - assets/images/splash_android12.png
+    - assets/images/app_icon.png
+    - assets/images/app_icon_foreground.png
+    - assets/data/maiduguri_pois.json
+    - assets/data/transport.json
+    - assets/data/faqs.json
+    - assets/hotels/aiba-sport-resort/preview/
+    - assets/hotels/amada/preview/
+    - assets/hotels/barwee/preview/
+    - assets/hotels/borno-state-hotel/preview/
+    - assets/hotels/city-star/preview/
+    - assets/hotels/command-guest-inn/preview/
+    - assets/hotels/desert-view/preview/
+    - assets/hotels/djado-hotel/preview/
+    - assets/hotels/dujima-annex/preview/
+    - assets/hotels/dujima-hotel/preview/
+    - assets/hotels/galaxy-hotel/preview/
+    - assets/hotels/garki-guest/preview/
+    - assets/hotels/glopet-hotel/preview/
+    - assets/hotels/golden-sand/preview/
+    - assets/hotels/grand-pinnacle/preview/
+    - assets/hotels/grand-polo/preview/
+    - assets/hotels/kelrich-hotel/preview/
+    - assets/hotels/khanan-hotel/preview/
+    - assets/hotels/muna/preview/
+    - assets/hotels/nanne-and-boi/preview/
+    - assets/hotels/solce/preview/
+    - assets/hotels/unimaid-guest-inn/preview/
+    - assets/hotels/zairan/preview/
+    - assets/venue/venue_tour.mp4
+    - assets/venue/plans/icc_layout.png
+    - assets/venue/plans/ground_floor.png
+    - assets/venue/plans/first_floor.png
+    - assets/venue/plans/thumb/icc_layout.png
+    - assets/venue/plans/thumb/ground_floor.png
+    - assets/venue/plans/thumb/first_floor.png
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+

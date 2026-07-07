@@ -1,0 +1,151 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { formatTimeRange, initials } from "@/lib/format";
+import { ArrowLeft, BookmarkPlus, BookmarkCheck, Navigation, MapPin } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_authenticated/schedule/$sessionId")({
+  component: SessionDetail,
+});
+
+function SessionDetail() {
+  const { sessionId } = Route.useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  const { data: session, isLoading } = useQuery({
+    queryKey: ["session", sessionId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("sessions")
+        .select("*, session_speakers(speakers(*))")
+        .eq("id", sessionId)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: agenda } = useQuery({
+    queryKey: ["my-agenda", user?.id, sessionId],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("my_agenda")
+        .select("session_id")
+        .eq("user_id", user!.id)
+        .eq("session_id", sessionId)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const toggle = useMutation({
+    mutationFn: async () => {
+      if (agenda) {
+        await supabase.from("my_agenda").delete().eq("user_id", user!.id).eq("session_id", sessionId);
+        return false;
+      }
+      await supabase.from("my_agenda").insert({ user_id: user!.id, session_id: sessionId });
+      return true;
+    },
+    onSuccess: (added) => {
+      toast.success(added ? "Added to your agenda" : "Removed from agenda");
+      qc.invalidateQueries({ queryKey: ["my-agenda"] });
+    },
+  });
+
+  if (isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+  if (!session) return <div className="p-6 text-sm text-muted-foreground">Session not found.</div>;
+
+  return (
+    <div>
+      <div className="bg-brand-gradient px-4 pb-6 pt-4 text-white">
+        <button
+          onClick={() => navigate({ to: "/schedule" })}
+          className="mb-3 inline-flex items-center gap-1 text-sm text-white/80"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to schedule
+        </button>
+        {session.track && (
+          <Badge className="mb-2 bg-white/15 text-white hover:bg-white/20">{session.track}</Badge>
+        )}
+        <h1 className="text-2xl font-bold leading-tight">{session.title}</h1>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/80">
+          <span>⏱ {formatTimeRange(session.starts_at, session.ends_at)}</span>
+          {session.room && <span>📍 {session.room}</span>}
+        </div>
+      </div>
+
+      <div className="space-y-5 px-4 py-5">
+        <div className="flex gap-2">
+          <Button className="flex-1" onClick={() => toggle.mutate()}>
+            {agenda ? (
+              <>
+                <BookmarkCheck className="h-4 w-4" /> In your agenda
+              </>
+            ) : (
+              <>
+                <BookmarkPlus className="h-4 w-4" /> Add to agenda
+              </>
+            )}
+          </Button>
+          {session.room && (
+            <Button variant="outline" asChild>
+              <Link to="/map" search={{ room: session.room }}>
+                <MapPin className="h-4 w-4" /> Map
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {session.description && (
+          <section>
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              About
+            </h3>
+            <p className="text-sm leading-relaxed">{session.description}</p>
+          </section>
+        )}
+
+        {session.session_speakers && session.session_speakers.length > 0 && (
+          <section>
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Speakers
+            </h3>
+            <div className="space-y-2">
+              {session.session_speakers.map((ss) => {
+                const sp = ss.speakers;
+                if (!sp) return null;
+                return (
+                  <Link
+                    key={sp.id}
+                    to="/speakers/$speakerId"
+                    params={{ speakerId: sp.id }}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3"
+                  >
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={sp.avatar_url ?? undefined} />
+                      <AvatarFallback>{initials(sp.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{sp.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {[sp.title, sp.company].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
