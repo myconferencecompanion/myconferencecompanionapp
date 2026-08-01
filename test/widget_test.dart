@@ -5,6 +5,7 @@ import 'package:nse_mobile/features/auth/auth_screen.dart';
 
 void main() {
   testWidgets('Auth screen builds (smoke)', (tester) async {
+    // Pump the widget
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
@@ -12,10 +13,15 @@ void main() {
         ),
       ),
     );
-    await tester.pump();
+    
+    // Wait for all animations and async operations
+    await tester.pumpAndSettle();
 
+    // Basic checks that the screen builds
     expect(find.byType(AuthScreen), findsOneWidget);
-    expect(find.text('Sign in'), findsWidgets);
-    expect(find.text('Register'), findsWidgets);
+    
+    // Check for tab labels
+    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Register'), findsOneWidget);
   });
 }
