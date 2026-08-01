@@ -86,16 +86,42 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     }
     TextInput.finishAutofillContext();
 
-    if (signUp && !Env.isDemoMode) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created. Check your email to confirm.')),
-      );
+    // Navigate whenever a session is live (demo, sign-in, or auto-confirmed
+    // sign-up). Only fall back to the "check your email" prompt when sign-up
+    // succeeded but no session was created (email confirmation required).
+    if (ref.read(authProvider).isLoggedIn) {
+      context.go(redirectTo ?? '/home');
       return;
     }
 
-    if (ref.read(authProvider).isLoggedIn) {
-      context.go(redirectTo ?? '/home');
+    if (signUp) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account created. Check your email to confirm, then sign in.')),
+      );
+      _tabs.animateTo(0);
     }
+  }
+
+  Future<void> _forgotPassword() async {
+    final email = _email.text.trim();
+    if (email.isEmpty) {
+      setState(() => _error = 'Enter your email above, then tap "Forgot password?"');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final err = await ref.read(authProvider.notifier).resetPassword(email);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (err != null) {
+      setState(() => _error = err);
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Password reset link sent to $email')),
+    );
   }
 
   Future<void> _signInAsAdmin() async {
@@ -266,6 +292,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             controller: _fullName,
             textInputAction: TextInputAction.next,
             enabled: !_busy,
+            textCapitalization: TextCapitalization.words,
+            autofillHints: const [AutofillHints.name],
             decoration: const InputDecoration(
               labelText: 'Full name',
               prefixIcon: Icon(Icons.person_outline_rounded),
@@ -279,7 +307,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           enabled: !_busy,
-          autofillHints: const [AutofillHints.email],
+          autofillHints: const [AutofillHints.email, AutofillHints.username],
           decoration: const InputDecoration(
             labelText: 'Email',
             prefixIcon: Icon(Icons.mail_outline_rounded),
@@ -287,7 +315,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           validator: (v) {
             final value = (v ?? '').trim();
             if (value.isEmpty) return 'Enter your email';
-            if (!value.contains('@')) return 'Enter a valid email';
+            final emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+            if (!emailRe.hasMatch(value)) return 'Enter a valid email';
             return null;
           },
         ),
@@ -314,6 +343,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           },
           onFieldSubmitted: (_) => _submit(signUp: signUp),
         ),
+        if (!signUp)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _busy ? null : _forgotPassword,
+              child: const Text('Forgot password?'),
+            ),
+          ),
         const SizedBox(height: AppSpacing.sm),
         TextFormField(
           controller: _roleCode,

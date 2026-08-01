@@ -73,6 +73,23 @@ class _WaitlistScreenState extends ConsumerState<WaitlistScreen> {
                           child: NseLoadingBlock(lines: 5),
                         );
                       }
+                      if (snap.hasError) {
+                        return RefreshIndicator(
+                          onRefresh: () async => _reload(),
+                          color: AppColors.navy,
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 24),
+                            children: const [
+                              NseEmptyState(
+                                title: 'Could not load activity',
+                                body: 'Pull down to refresh.',
+                                icon: Icons.error_outline_rounded,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                       return RefreshIndicator(
                         onRefresh: () async => _reload(),
                         color: AppColors.navy,
@@ -123,9 +140,10 @@ class _ActivityBody extends StatelessWidget {
         if (usher.isNotEmpty) ...[
           const NseSectionTitle(title: 'Usher'),
           ...usher.map((r) => _ActivityCard(
-                title: r['reason'] as String,
+                title: 'Usher request',
                 subtitle: r['location_label'] as String? ?? '',
                 status: r['status'] as String,
+                reason: r['reason'] as String? ?? 'assistance',
               )),
         ],
         if (food.isNotEmpty) ...[
@@ -152,14 +170,25 @@ class _ActivityBody extends StatelessWidget {
 }
 
 class _ActivityCard extends StatelessWidget {
-  const _ActivityCard({required this.title, required this.subtitle, required this.status});
+  const _ActivityCard({required this.title, required this.subtitle, required this.status, this.reason});
 
   final String title;
   final String subtitle;
   final String status;
+  final String? reason;
+
+  String _humanizeReason(String? raw) {
+    if (raw == null) return '';
+    return raw
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((w) => w[0].toUpperCase() + w.substring(1))
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
+    final reasonLabel = reason != null ? _humanizeReason(reason) : '';
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: NseCard(
@@ -169,13 +198,18 @@ class _ActivityCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.titleSmall),
-                  if (subtitle.isNotEmpty)
-                    Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Text(sanitizeDisplay(title), style: Theme.of(context).textTheme.titleSmall),
+                  if (sanitizeDisplay(subtitle).isNotEmpty)
+                    Text(sanitizeDisplay(subtitle), style: Theme.of(context).textTheme.bodySmall),
+                  if (reasonLabel.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(reasonLabel, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.inkSoft)),
+                    ),
                 ],
               ),
             ),
-            NseStatusChip(label: status.replaceAll('_', ' ')),
+              NseStatusChip(label: sanitizeDisplay(status.replaceAll('_', ' '))),
           ],
         ),
       ),

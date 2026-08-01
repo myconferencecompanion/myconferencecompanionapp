@@ -83,11 +83,14 @@ class _FaqScreenState extends State<FaqScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
-                  child: TextField(
-                    controller: _search,
-                    decoration: const InputDecoration(
-                      hintText: 'Search FAQs…',
-                      prefixIcon: Icon(Icons.search_rounded),
+                  child: NseCard(
+                    padding: const EdgeInsets.all(10),
+                    child: TextField(
+                      controller: _search,
+                      decoration: const InputDecoration(
+                        hintText: 'Search FAQs…',
+                        prefixIcon: Icon(Icons.search_rounded),
+                      ),
                     ),
                   ),
                 ),
@@ -110,7 +113,8 @@ class _FaqScreenState extends State<FaqScreen> {
             child: Theme(
               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+                childrenPadding: const EdgeInsets.only(bottom: 4),
                 title: Text(e.key, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text('${e.value.length} questions', style: Theme.of(context).textTheme.bodySmall),
                 children: e.value.map((f) => _faqTile(f)).toList(),

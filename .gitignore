@@ -56,3 +56,10 @@ pubspec.lock
 **/android/app/debug
 **/android/app/profile
 **/android/app/release
+PubCache/
+
+# Temporary files
+build_output.txt
+*.docx
+!README.docx
+tools/

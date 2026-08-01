@@ -140,16 +140,16 @@ class _RankedHotelCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(hotel.name, style: Theme.of(context).textTheme.titleSmall),
+                      child: Text(sanitizeDisplay(hotel.name), style: Theme.of(context).textTheme.titleSmall),
                     ),
-                    NseStatusChip(label: hotel.tierLabel, tone: _tierTone(hotel.qualityTier)),
+                    NseStatusChip(label: sanitizeDisplay(hotel.tierLabel), tone: _tierTone(hotel.qualityTier)),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(hotel.tone, style: Theme.of(context).textTheme.labelSmall),
+                Text(sanitizeDisplay(hotel.tone), style: Theme.of(context).textTheme.labelSmall),
                 const SizedBox(height: 6),
                 Text(
-                  hotel.location,
+                  sanitizeDisplay(hotel.location),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
@@ -159,8 +159,8 @@ class _RankedHotelCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 6,
                   children: [
-                    NseStatusChip(label: hotel.roomSummary, tone: AppColors.greenSoft),
-                    NseStatusChip(label: hotel.rateStatus, tone: AppColors.navySoft),
+                    NseStatusChip(label: sanitizeDisplay(hotel.roomSummary), tone: AppColors.greenSoft),
+                    NseStatusChip(label: sanitizeDisplay(hotel.rateStatus), tone: AppColors.navySoft),
                   ],
                 ),
               ],
@@ -209,11 +209,11 @@ class AboutScreen extends StatelessWidget {
                   children: [
                     const NseBrandMark(height: 56),
                     const SizedBox(height: 12),
-                    Text(info.conferenceTitle, textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall),
+                    Text(sanitizeDisplay(info.conferenceTitle), textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 6),
-                    Text(info.theme, textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Text(sanitizeDisplay(info.theme), textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -222,9 +222,9 @@ class AboutScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${info.dates}\n${info.venue}', style: Theme.of(context).textTheme.bodyMedium),
+                    Text(sanitizeDisplay('${info.dates}\n${info.venue}'), style: Theme.of(context).textTheme.bodyMedium),
                     const SizedBox(height: 8),
-                    Text('Chairman: ${info.chairman}', style: Theme.of(context).textTheme.bodySmall),
+                    Text('Chairman: ${sanitizeDisplay(info.chairman)}', style: Theme.of(context).textTheme.bodySmall),
                   ],
                 ),
               ),
@@ -233,17 +233,17 @@ class AboutScreen extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: info.stats
-                    .map((s) => NseStatusChip(label: '${s['value']} ${s['label']}', tone: AppColors.greenSoft))
+                    .map((s) => NseStatusChip(label: sanitizeDisplay('${s['value']} ${s['label']}'), tone: AppColors.greenSoft))
                     .toList(),
               ),
               const SizedBox(height: AppSpacing.lg),
               const NseSectionTitle(title: 'Entertainment'),
-              NseCard(child: Text(info.entertainment['focus'] ?? '', style: Theme.of(context).textTheme.bodyMedium)),
+              NseCard(child: Text(sanitizeDisplay(info.entertainment['focus'] ?? ''), style: Theme.of(context).textTheme.bodyMedium)),
               const SizedBox(height: AppSpacing.md),
               const NseSectionTitle(title: 'Spouses programme'),
               NseCard(
                 child: Text(
-                  '${info.spouses['venue']}\n${info.spouses['focus']}',
+                  sanitizeDisplay('${info.spouses['venue']}\n${info.spouses['focus']}'),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -302,7 +302,7 @@ class DirectionsScreen extends StatelessWidget {
                                 child: Icon(Icons.directions_rounded, size: 18, color: AppColors.navy),
                               ),
                               const SizedBox(width: 10),
-                              Expanded(child: Text(d, style: Theme.of(context).textTheme.bodyMedium)),
+                              Expanded(child: Text(sanitizeDisplay(d), style: Theme.of(context).textTheme.bodyMedium)),
                             ],
                           ),
                         ),
@@ -313,11 +313,11 @@ class DirectionsScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
               NseCard(
                 tint: AppColors.greenSoft,
-                child: Text(pois['shuttle'] as String, style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(sanitizeDisplay(pois['shuttle'] as String?), style: Theme.of(context).textTheme.bodyMedium),
               ),
               const SizedBox(height: AppSpacing.sm),
               NseCard(
-                child: Text(pois['parking'] as String, style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(sanitizeDisplay(pois['parking'] as String?), style: Theme.of(context).textTheme.bodyMedium),
               ),
               const SizedBox(height: AppSpacing.lg),
               FilledButton.icon(
@@ -415,12 +415,12 @@ class NearbyScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(p['name'] as String, style: Theme.of(context).textTheme.titleSmall),
-                                Text(p['note'] as String? ?? '', style: Theme.of(context).textTheme.bodySmall),
+                                Text(sanitizeDisplay(p['name'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                                Text(sanitizeDisplay(p['note'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
                                 const SizedBox(height: 8),
                                 Row(
                                   children: [
-                                    NseStatusChip(label: p['category'] as String, tone: AppColors.navySoft),
+                                    NseStatusChip(label: sanitizeDisplay(p['category'] as String?), tone: AppColors.navySoft),
                                     const SizedBox(width: 8),
                                     Icon(Icons.straighten_rounded, size: 14, color: Theme.of(context).hintColor),
                                     const SizedBox(width: 4),

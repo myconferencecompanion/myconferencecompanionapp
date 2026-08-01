@@ -1,40 +1,85 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nse_mobile/config/env.dart';
 import 'package:nse_mobile/config/event_config.dart';
 import 'package:nse_mobile/core/auth_provider.dart';
+import 'package:nse_mobile/core/format.dart';
 import 'package:nse_mobile/core/widgets/nse_ui.dart';
 import 'package:nse_mobile/core/widgets/page_widgets.dart';
 import 'package:nse_mobile/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AnnouncementsScreen extends ConsumerWidget {
+class AnnouncementsScreen extends ConsumerStatefulWidget {
   const AnnouncementsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final client = ref.watch(supabaseProvider);
-    final userId = ref.watch(authProvider).userId;
+  ConsumerState<AnnouncementsScreen> createState() => _AnnouncementsScreenState();
+}
 
+class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
+  late Future<List<Map<String, dynamic>>> _future;
+  bool _markedRead = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _load();
+  }
+
+  Future<List<Map<String, dynamic>>> _load() async {
+    final client = ref.read(supabaseProvider);
+    final data = await client.from('announcements').select().order('created_at', ascending: false);
+    final items = (data as List).cast<Map<String, dynamic>>();
+    _markRead(items);
+    return items;
+  }
+
+  /// Fire-and-forget read tracking — runs once, never inside build().
+  void _markRead(List<Map<String, dynamic>> items) {
+    if (_markedRead || items.isEmpty) return;
+    final userId = ref.read(authProvider).userId;
+    if (userId == null) return;
+    _markedRead = true;
+    ref.read(supabaseProvider).from('announcement_reads').upsert(
+          items.map((a) => {'user_id': userId, 'announcement_id': a['id']}).toList(),
+        );
+  }
+
+  static const _header = NseTitleHeader(
+    title: 'Announcements',
+    subtitle: 'Official updates from the organisers.',
+    padding: EdgeInsets.only(bottom: AppSpacing.md),
+  );
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent),
       body: FutureBuilder(
-        future: client.from('announcements').select().order('created_at', ascending: false),
+        future: _future,
         builder: (context, snap) {
+          if (snap.hasError) {
+            return Column(children: [
+              const NseTitleHeader(title: 'Announcements', subtitle: 'Official updates from the organisers.'),
+              Expanded(
+                child: ErrorView(
+                  message: 'Could not load announcements. Check your connection.',
+                  onRetry: () => setState(() => _future = _load()),
+                ),
+              ),
+            ]);
+          }
           if (!snap.hasData) {
             return const Column(children: [
               NseTitleHeader(title: 'Announcements', subtitle: 'Official updates from the organisers.'),
               Expanded(child: LoadingView()),
             ]);
           }
-          final items = (snap.data as List).cast<Map<String, dynamic>>();
-          if (userId != null && items.isNotEmpty) {
-            client.from('announcement_reads').upsert(
-              items.map((a) => {'user_id': userId, 'announcement_id': a['id']}).toList(),
-            );
-          }
+          final items = snap.data!;
           if (items.isEmpty) {
             return const Column(children: [
               NseTitleHeader(title: 'Announcements', subtitle: 'Official updates from the organisers.'),
@@ -48,47 +93,51 @@ class AnnouncementsScreen extends ConsumerWidget {
               ),
             ]);
           }
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 40),
-            itemCount: items.length + 1,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, idx) {
-              if (idx == 0) {
-                return const NseTitleHeader(
-                  title: 'Announcements',
-                  subtitle: 'Official updates from the organisers.',
-                  padding: EdgeInsets.only(bottom: AppSpacing.md),
-                );
-              }
-              final i = idx - 1;
-              final a = items[i];
-              final high = a['priority'] == 'high';
-              return NseCard(
-                tint: high ? AppColors.goldSoft : AppColors.surface,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    NseIconBadge(
-                      icon: high ? Icons.priority_high_rounded : Icons.campaign_rounded,
-                      tone: high ? AppColors.goldSoft : AppColors.navySoft,
-                      iconColor: high ? AppColors.gold : AppColors.navy,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(a['title'] as String,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 4),
-                          Text(a['body'] as String, style: Theme.of(context).textTheme.bodyMedium),
-                        ],
+          return RefreshIndicator(
+            onRefresh: () async => setState(() => _future = _load()),
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 40),
+              itemCount: items.length + 1,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, idx) {
+                if (idx == 0) return _header;
+                final a = items[idx - 1];
+                final high = a['priority'] == 'high';
+                final posted = parseIso(a['created_at'] as String?);
+                return NseCard(
+                  tint: high ? AppColors.goldSoft : AppColors.surface,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      NseIconBadge(
+                        icon: high ? Icons.priority_high_rounded : Icons.campaign_rounded,
+                        tone: high ? AppColors.goldSoft : AppColors.navySoft,
+                        iconColor: high ? AppColors.gold : AppColors.navy,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(sanitizeDisplay(a['title'] as String? ?? 'Update'),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 4),
+                            Text(sanitizeDisplay(a['body'] as String? ?? ''), style: Theme.of(context).textTheme.bodyMedium),
+                            if (posted != null) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                formatDayLabel(posted),
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.inkSoft),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         },
       ),
@@ -99,6 +148,18 @@ class AnnouncementsScreen extends ConsumerWidget {
 class EmergencyScreen extends ConsumerWidget {
   const EmergencyScreen({super.key});
 
+  Future<void> _call(BuildContext context, String? phone) async {
+    if (phone == null || phone.trim().isEmpty) return;
+    final sanitized = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    final uri = Uri.parse('tel:$sanitized');
+    final ok = await canLaunchUrl(uri) && await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not start a call. Dial $phone manually.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final client = ref.watch(supabaseProvider);
@@ -107,6 +168,12 @@ class EmergencyScreen extends ConsumerWidget {
       body: FutureBuilder(
         future: client.from('emergency_contacts').select().order('sort_order'),
         builder: (context, snap) {
+          if (snap.hasError) {
+            return const Column(children: [
+              NseTitleHeader(title: 'Emergency', subtitle: 'Tap a contact to call immediately.'),
+              Expanded(child: ErrorView(message: 'Could not load emergency contacts.')),
+            ]);
+          }
           if (!snap.hasData) {
             return const Column(children: [
               NseTitleHeader(title: 'Emergency', subtitle: 'Tap a contact to call immediately.'),
@@ -142,12 +209,19 @@ class EmergencyScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
+              if (contacts.isEmpty)
+                const NseEmptyState(
+                  title: 'No contacts listed yet',
+                  body: 'Emergency numbers will appear here once published by the organisers.',
+                  icon: Icons.phone_disabled_rounded,
+                ),
               ...contacts.map((c) {
-                final critical = c['category'] == 'emergency';
+                final cat = (c['category'] as String?)?.toLowerCase();
+                final critical = cat == 'emergency' || cat == 'medical' || cat == 'security';
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: NseCard(
-                    onTap: () => launchUrl(Uri.parse('tel:${c['phone']}')),
+                    onTap: () => _call(context, c['phone'] as String?),
                     tint: critical ? AppColors.destructive : AppColors.surface,
                     child: Row(
                       children: [
@@ -156,13 +230,13 @@ class EmergencyScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                c['label'] as String,
+                                sanitizeDisplay(c['label'] as String?),
                                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                       color: critical ? Colors.white : AppColors.ink,
                                     ),
                               ),
                               Text(
-                                c['phone'] as String,
+                                sanitizeDisplay(c['phone'] as String?),
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       color: critical ? Colors.white : AppColors.navy,
                                       fontWeight: FontWeight.w800,
@@ -170,7 +244,7 @@ class EmergencyScreen extends ConsumerWidget {
                               ),
                               if (c['description'] != null)
                                 Text(
-                                  c['description'] as String,
+                                  sanitizeDisplay(c['description'] as String?),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                         color: critical ? Colors.white70 : AppColors.inkSoft,
                                       ),
@@ -187,7 +261,7 @@ class EmergencyScreen extends ConsumerWidget {
               NseCard(
                 tint: AppColors.cream,
                 child: Text(
-                  'First-aid station next to Hall A (8am–10pm).\nConference hotline: ${EventConfig.primaryHotline}',
+                  sanitizeDisplay('First-aid station next to Hall A (8am–10pm).\nConference hotline: ${EventConfig.primaryHotline}'),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -231,11 +305,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (userId == null) return;
     final profile = await ref.read(backendProvider).from('profiles').select().eq('id', userId).maybeSingle();
     if (profile != null && mounted) {
-      _name.text = profile['display_name'] as String? ?? '';
-      _title.text = profile['title'] as String? ?? '';
-      _company.text = profile['company'] as String? ?? '';
-      _bio.text = profile['bio'] as String? ?? '';
-      _avatar.text = profile['avatar_url'] as String? ?? '';
+      _name.text = sanitizeDisplay(profile['display_name'] as String? ?? '');
+      _title.text = sanitizeDisplay(profile['title'] as String? ?? '');
+      _company.text = sanitizeDisplay(profile['company'] as String? ?? '');
+      _bio.text = sanitizeDisplay(profile['bio'] as String? ?? '');
+      _avatar.text = sanitizeDisplay(profile['avatar_url'] as String? ?? '');
       _networking = profile['networking_opt_in'] as bool? ?? true;
     }
     if (mounted) setState(() => _loading = false);
@@ -257,31 +331,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       imageQuality: 82,
     );
     if (file == null) return;
-    if (Env.isDemoMode) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Photo upload becomes available once connected to the live server.'),
-        ));
-      }
-      return;
-    }
     setState(() => _uploading = true);
     try {
       final bytes = await file.readAsBytes();
-      final path = '$userId/avatar.jpg';
-      final storage = Supabase.instance.client.storage.from('avatars');
-      await storage.uploadBinary(
-        path,
-        bytes,
-        fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-      );
-      final url = '${storage.getPublicUrl(path)}?v=${DateTime.now().millisecondsSinceEpoch}';
-      if (!mounted) return;
-      setState(() {
-        _avatar.text = url;
-        _uploading = false;
-      });
-      await _save();
+      if (Env.isDemoMode) {
+        // In demo mode, store as base64 data URL so photo persists in profile
+        final base64 = base64Encode(bytes);
+        final dataUrl = 'data:image/jpeg;base64,$base64';
+        if (!mounted) return;
+        setState(() {
+          _avatar.text = dataUrl;
+          _uploading = false;
+        });
+        await _save();
+      } else {
+        // In live mode, upload to Supabase storage
+        final path = '$userId/avatar.jpg';
+        final storage = Supabase.instance.client.storage.from('avatars');
+        await storage.uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+        );
+        final url = '${storage.getPublicUrl(path)}?v=${DateTime.now().millisecondsSinceEpoch}';
+        if (!mounted) return;
+        setState(() {
+          _avatar.text = url;
+          _uploading = false;
+        });
+        await _save();
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _uploading = false);
@@ -324,13 +403,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           NseCard(
             tint: AppColors.cream,
-            child: Row(
+                child: Row(
               children: [
                 GestureDetector(
                   onTap: _uploading ? null : _pickPhoto,
                   child: Stack(
                     children: [
-                      NseAvatar(name: _name.text, imageUrl: _avatar.text, radius: 32),
+                      NseAvatar(name: sanitizeDisplay(_name.text), imageUrl: sanitizeDisplay(_avatar.text), radius: 32),
                       Positioned(
                         right: 0,
                         bottom: 0,
@@ -359,13 +438,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _name.text.trim().isEmpty ? 'Your name' : _name.text.trim(),
+                        sanitizeDisplay(_name.text).isEmpty ? 'Your name' : sanitizeDisplay(_name.text),
                         style: Theme.of(context).textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        [_title.text, _company.text].where((s) => s.trim().isNotEmpty).join(' · '),
+                        sanitizeDisplay([_title.text, _company.text].where((s) => s.trim().isNotEmpty).join(' · ')),
                         style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

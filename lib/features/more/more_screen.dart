@@ -15,14 +15,6 @@ class MoreScreen extends ConsumerStatefulWidget {
 }
 
 class _MoreScreenState extends ConsumerState<MoreScreen> {
-  final _code = TextEditingController();
-
-  @override
-  void dispose() {
-    _code.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
@@ -83,36 +75,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: AppSpacing.md),
-              NseCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text('Staff role code', style: Theme.of(context).textTheme.titleSmall),
-                    const SizedBox(height: 4),
-                    Text('Redeem a code to unlock admin tools on this device.',
-                        style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: AppSpacing.sm),
-                    TextField(
-                      controller: _code,
-                      textCapitalization: TextCapitalization.characters,
-                      decoration: const InputDecoration(hintText: 'NSE-KITCHEN-3046'),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    FilledButton(
-                      onPressed: () async {
-                        final label = await ref.read(authProvider.notifier).redeemCode(_code.text);
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(label != null ? 'Role granted: $label' : 'Code redeemed')),
-                        );
-                        _code.clear();
-                      },
-                      child: const Text('Redeem code'),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: AppSpacing.md),
               OutlinedButton.icon(
                 onPressed: () async {

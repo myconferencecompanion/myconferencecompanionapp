@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nse_mobile/config/event_config.dart';
 import 'package:nse_mobile/core/admin_config.dart';
+import 'package:nse_mobile/core/widgets/nse_ui.dart';
 import 'package:nse_mobile/data/faq_data.dart';
 import 'package:nse_mobile/data/reference_data.dart';
 import 'package:nse_mobile/theme/app_theme.dart';
@@ -152,7 +153,7 @@ class GlobalSearch {
     add(
       id: 'wifi',
       title: 'Conference Wi-Fi',
-      subtitle: '${EventConfig.wifiSsid} · password ${EventConfig.wifiPassword}',
+      subtitle: sanitizeDisplay('${EventConfig.wifiSsid} · password ${EventConfig.wifiPassword}'),
       group: 'Essentials',
       icon: Icons.wifi_rounded,
       iconColor: AppColors.gold,
@@ -163,8 +164,8 @@ class GlobalSearch {
 
     add(
       id: 'venue',
-      title: EventConfig.venueName,
-      subtitle: '${EventConfig.venueAddress} · ${EventConfig.dates}',
+      title: sanitizeDisplay(EventConfig.venueName),
+      subtitle: sanitizeDisplay('${EventConfig.venueAddress} · ${EventConfig.dates}'),
       group: 'Essentials',
       icon: Icons.location_city_rounded,
       iconColor: AppColors.navy,
@@ -204,8 +205,8 @@ class GlobalSearch {
       final room = s['room'] as String? ?? '';
       add(
         id: 'session-${s['id']}',
-        title: title,
-        subtitle: [if (s['day'] != null) 'Day ${s['day']}', room].where((e) => e.toString().isNotEmpty).join(' · '),
+        title: sanitizeDisplay(title),
+        subtitle: sanitizeDisplay([if (s['day'] != null) 'Day ${s['day']}', room].where((e) => e.toString().isNotEmpty).join(' · ')),
         group: 'Programme',
         icon: Icons.event_rounded,
         iconColor: AppColors.navy,
@@ -218,8 +219,8 @@ class GlobalSearch {
     for (final sp in speakers) {
       add(
         id: 'speaker-${sp['id']}',
-        title: sp['name'] as String? ?? 'Speaker',
-        subtitle: sp['title'] as String? ?? sp['organization'] as String? ?? 'Speaker',
+        title: sanitizeDisplay(sp['name'] as String? ?? 'Speaker'),
+        subtitle: sanitizeDisplay(sp['title'] as String? ?? sp['company'] as String? ?? 'Speaker'),
         group: 'People',
         icon: Icons.mic_rounded,
         iconColor: AppColors.green,
@@ -232,8 +233,8 @@ class GlobalSearch {
     for (final a in announcements) {
       add(
         id: 'ann-${a['id']}',
-        title: a['title'] as String? ?? 'Announcement',
-        subtitle: (a['body'] as String? ?? '').replaceAll('\n', ' '),
+        title: sanitizeDisplay(a['title'] as String? ?? 'Announcement'),
+        subtitle: sanitizeDisplay((a['body'] as String? ?? '').replaceAll('\n', ' ')),
         group: 'News',
         icon: Icons.campaign_rounded,
         iconColor: AppColors.gold,
@@ -246,8 +247,8 @@ class GlobalSearch {
     for (final h in accommodations) {
       add(
         id: 'hotel-${h['id']}',
-        title: h['name'] as String? ?? 'Hotel',
-        subtitle: h['address'] as String? ?? h['notes'] as String? ?? 'Partner hotel',
+        title: sanitizeDisplay(h['name'] as String? ?? 'Hotel'),
+        subtitle: sanitizeDisplay(h['address'] as String? ?? h['notes'] as String? ?? 'Partner hotel'),
         group: 'Hotels',
         icon: Icons.hotel_rounded,
         iconColor: AppColors.gold,
@@ -288,8 +289,8 @@ class GlobalSearch {
     for (final m in menu) {
       add(
         id: 'menu-${m['id']}',
-        title: m['name'] as String? ?? 'Menu item',
-        subtitle: m['description'] as String? ?? 'Delegate meal',
+        title: sanitizeDisplay(m['name'] as String? ?? 'Menu item'),
+        subtitle: sanitizeDisplay(m['description'] as String? ?? 'Delegate meal'),
         group: 'Food',
         icon: Icons.restaurant_rounded,
         iconColor: AppColors.gold,
@@ -303,8 +304,8 @@ class GlobalSearch {
       final name = p['display_name'] as String? ?? 'Delegate';
       add(
         id: 'profile-${p['id']}',
-        title: name,
-        subtitle: [p['title'], p['company']].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
+        title: sanitizeDisplay(name),
+        subtitle: sanitizeDisplay([p['title'], p['company']].whereType<String>().where((s) => s.isNotEmpty).join(' · ')),
         group: 'Delegates',
         icon: Icons.person_rounded,
         iconColor: AppColors.green,

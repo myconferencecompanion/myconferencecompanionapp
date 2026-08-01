@@ -82,6 +82,16 @@ GoRouter createAppRouter(WidgetRef ref) {
       GoRoute(path: '/concierge/errands', builder: (context, state) => const ErrandsScreen()),
       GoRoute(path: '/concierge/orders', builder: (context, state) => const OrdersScreen()),
       GoRoute(path: '/chatbot', builder: (context, state) => const ChatbotScreen()),
+      GoRoute(
+        path: '/faq',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ChatbotScreen(
+            initialQuestion: extra?['question'] as String?,
+            initialAnswer: extra?['answer'] as String?,
+          );
+        },
+      ),
       GoRoute(path: '/admin', builder: (context, state) => const AdminHomeScreen()),
       GoRoute(
         path: '/admin/sessions',

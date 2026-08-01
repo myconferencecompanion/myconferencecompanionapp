@@ -39,7 +39,13 @@ class _UsherScreenState extends ConsumerState<UsherScreen> {
     });
     if (mounted) {
       bumpActivity(ref);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usher notified')));
+      _note.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Usher notified'),
+          action: SnackBarAction(label: 'Activity', onPressed: () => context.go('/waitlist')),
+        ),
+      );
       setState(() {});
     }
   }
@@ -108,12 +114,12 @@ class _UsherScreenState extends ConsumerState<UsherScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(r['reason'] as String, style: Theme.of(context).textTheme.titleSmall),
-                                Text('${r['location_label']}', style: Theme.of(context).textTheme.bodySmall),
+                                Text(sanitizeDisplay(r['reason'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                                Text(sanitizeDisplay(r['location_label'] as String?), style: Theme.of(context).textTheme.bodySmall),
                               ],
                             ),
                           ),
-                          NseStatusChip(label: r['status'] as String),
+                          NseStatusChip(label: sanitizeDisplay(r['status'] as String?)),
                         ],
                       ),
                     ),
@@ -139,6 +145,7 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
   final Map<String, int> _cart = {};
   final _pickup = TextEditingController(text: 'ICC Catering Point B');
   final _notes = TextEditingController();
+  bool _placing = false;
 
   @override
   void dispose() {
@@ -176,34 +183,49 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
   }
 
   Future<void> _place(Map<String, Map<String, dynamic>> itemMap) async {
+    if (_placing) return;
     final userId = ref.read(authProvider).userId;
     if (userId == null) return;
     if (_pickup.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add pickup location')));
       return;
     }
+    setState(() => _placing = true);
     final client = ref.read(supabaseProvider);
-    final order = await client.from('food_orders').insert({
-      'user_id': userId,
-      'pickup_location': _pickup.text.trim(),
-      'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
-      'total_ngn': 0,
-    }).select('id').single();
-    final lines = _cart.entries.map((e) {
-      final item = itemMap[e.key]!;
-      return {
-        'order_id': order['id'],
-        'menu_item_id': e.key,
-        'item_name_snapshot': item['name'],
-        'quantity': e.value,
-        'unit_price_ngn': 0,
-      };
-    }).toList();
-    await client.from('food_order_items').insert(lines);
-    if (mounted) {
+    try {
+      final order = await client.from('food_orders').insert({
+        'user_id': userId,
+        'pickup_location': _pickup.text.trim(),
+        'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+        'total_ngn': 0,
+      }).select('id').single();
+      final lines = _cart.entries
+          .where((e) => itemMap[e.key] != null)
+          .map((e) {
+        final item = itemMap[e.key]!;
+        return {
+          'order_id': order['id'],
+          'menu_item_id': e.key,
+          'item_name_snapshot': item['name'],
+          'quantity': e.value,
+          'unit_price_ngn': 0,
+        };
+      }).toList();
+      await client.from('food_order_items').insert(lines);
+      if (!mounted) return;
       bumpActivity(ref);
-      setState(() => _cart.clear());
+      setState(() {
+        _cart.clear();
+        _notes.clear();
+        _placing = false;
+      });
       context.push('/concierge/orders');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _placing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not place your order. Please try again.')),
+      );
     }
   }
 
@@ -265,7 +287,7 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: Text(cat['name'] as String, style: Theme.of(context).textTheme.titleSmall),
+                            child: Text(sanitizeDisplay(cat['name'] as String?), style: Theme.of(context).textTheme.titleSmall),
                           ),
                           NseStatusChip(
                             label: chosen != null ? '1 of 1 selected' : 'Pick one',
@@ -281,8 +303,8 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
                       final itemMax = (item['max_per_item'] as int?) ?? 1;
                       final isOtherChosen = chosen != null && chosen['id'] != id;
                       return NseMenuItemTile(
-                        name: item['name'] as String,
-                        description: item['description'] as String? ?? 'Complimentary for delegates',
+                        name: sanitizeDisplay(item['name'] as String?),
+                        description: sanitizeDisplay(item['description'] as String? ?? 'Complimentary for delegates'),
                         quantity: qty,
                         itemMax: itemMax,
                         isOtherChosen: isOtherChosen,
@@ -309,9 +331,17 @@ class _FoodScreenState extends ConsumerState<FoodScreen> {
               if (_cart.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.sm),
                 FilledButton.icon(
-                  onPressed: () => _place(itemMap),
-                  icon: const Icon(Icons.check_rounded),
-                  label: Text('Place order (${_cart.values.fold(0, (a, b) => a + b)} items)'),
+                  onPressed: _placing ? null : () => _place(itemMap),
+                  icon: _placing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.check_rounded),
+                  label: Text(_placing
+                      ? 'Placing…'
+                      : 'Place order (${_cart.values.fold(0, (a, b) => a + b)} items)'),
                 ),
               ],
             ],
@@ -346,6 +376,12 @@ class _ErrandsScreenState extends ConsumerState<ErrandsScreen> {
   Future<void> _submit() async {
     final userId = ref.read(authProvider).userId;
     if (userId == null) return;
+    if (_description.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please describe what you need before submitting.')),
+      );
+      return;
+    }
     await ref.read(supabaseProvider).from('errand_requests').insert({
       'user_id': userId,
       'category': _category,
@@ -356,10 +392,12 @@ class _ErrandsScreenState extends ConsumerState<ErrandsScreen> {
     });
     if (mounted) {
       bumpActivity(ref);
+      _description.clear();
+      _room.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Errand submitted'),
-          action: SnackBarAction(label: 'Activity', onPressed: () => context.push('/waitlist')),
+          action: SnackBarAction(label: 'Activity', onPressed: () => context.go('/waitlist')),
         ),
       );
       setState(() {});
@@ -405,8 +443,8 @@ class _ErrandsScreenState extends ConsumerState<ErrandsScreen> {
                       DropdownButtonFormField<String?>(
                         initialValue: _hotelId,
                         items: hotels
-                            .map((h) => DropdownMenuItem(value: h['id'] as String, child: Text(h['name'] as String)))
-                            .toList(),
+                          .map((h) => DropdownMenuItem(value: h['id'] as String, child: Text(sanitizeDisplay(h['name'] as String?))))
+                          .toList(),
                         onChanged: (v) => setState(() => _hotelId = v),
                         decoration: const InputDecoration(labelText: 'Hotel'),
                       ),
@@ -462,12 +500,12 @@ class _ErrandsScreenState extends ConsumerState<ErrandsScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(r['category'] as String, style: Theme.of(context).textTheme.titleSmall),
-                                          Text(r['description'] as String? ?? '', style: Theme.of(context).textTheme.bodySmall),
+                                          Text(sanitizeDisplay(r['category'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                                          Text(sanitizeDisplay(r['description'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
                                         ],
                                       ),
                                     ),
-                                    NseStatusChip(label: (r['status'] as String).replaceAll('_', ' ')),
+                                    NseStatusChip(label: sanitizeDisplay((r['status'] as String).replaceAll('_', ' '))),
                                   ],
                                 ),
                               ),
@@ -533,6 +571,22 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               Expanded(child: LoadingView()),
             ]);
           }
+          if (snap.hasError) {
+            return RefreshIndicator(
+              onRefresh: () async => _reload(),
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  const SizedBox(height: 80),
+                  const NseEmptyState(
+                    title: 'Could not load orders',
+                    body: 'Pull down to retry.',
+                    icon: Icons.error_outline_rounded,
+                  ),
+                ],
+              ),
+            );
+          }
           final food = (snap.data![0] as List).cast<Map<String, dynamic>>();
           final errands = (snap.data![1] as List).cast<Map<String, dynamic>>();
           final allItems = (snap.data![2] as List).cast<Map<String, dynamic>>();
@@ -589,13 +643,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                             if (o['notes'] != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
-                                child: Text(o['notes'] as String, style: Theme.of(context).textTheme.bodySmall),
+                                child: Text(sanitizeDisplay(o['notes'] as String?), style: Theme.of(context).textTheme.bodySmall),
                               ),
                             if (lines.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               ...lines.map(
                                 (l) => Text(
-                                  '· ${l['quantity']}× ${l['item_name_snapshot']}',
+                                  '· ${l['quantity']}× ${sanitizeDisplay(l['item_name_snapshot'] as String?)}',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ),
@@ -619,12 +673,12 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(e['category'] as String, style: Theme.of(context).textTheme.titleSmall),
-                                  Text(e['description'] as String? ?? '', style: Theme.of(context).textTheme.bodySmall),
+                                  Text(sanitizeDisplay(e['category'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                                  Text(sanitizeDisplay(e['description'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
                                 ],
                               ),
                             ),
-                            NseStatusChip(label: (e['status'] as String).replaceAll('_', ' ')),
+                            NseStatusChip(label: sanitizeDisplay((e['status'] as String).replaceAll('_', ' '))),
                           ],
                         ),
                       ),

@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:nse_mobile/config/event_config.dart';
 import 'package:nse_mobile/theme/app_theme.dart';
+
+/// Sanitize text coming from dynamic data sources for safe display.
+String sanitizeDisplay(String? s) => (s ?? '').replaceAll(RegExp(r'\s+'), ' ').trim();
 
 /// Press-scale + light haptic wrapper for tappable surfaces (native feel).
 class NseTapScale extends StatefulWidget {
@@ -83,7 +88,9 @@ class NseCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: fill,
         borderRadius: BorderRadius.circular(radius),
-        border: outlined ? Border.all(color: AppColors.border) : null,
+        border: Border.all(
+          color: outlined ? AppColors.border : AppColors.border.withValues(alpha: 0.72),
+        ),
         boxShadow: flat ? null : AppShadows.card,
       ),
       child: content,
@@ -98,7 +105,10 @@ class NseCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(radius),
           splashColor: AppColors.navy.withValues(alpha: 0.06),
-          child: card,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: card,
+            ),
         ),
       ),
     );
@@ -115,7 +125,7 @@ class NseSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm, top: 2),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm, top: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -123,10 +133,13 @@ class NseSectionTitle extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
                 if (subtitle != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 3),
+                    padding: const EdgeInsets.only(top: 4),
                     child: Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
                   ),
               ],
@@ -497,12 +510,13 @@ class NseSearchBar extends StatelessWidget {
     return NseTapScale(
       onTap: onTap,
       child: Container(
-        height: 50,
+        height: 54,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(999),
           boxShadow: AppShadows.card,
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.7)),
         ),
         child: Row(
           children: [
@@ -514,14 +528,7 @@ class NseSearchBar extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.inkSoft),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.navySoft,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Icon(Icons.tune_rounded, color: AppColors.navy, size: 16),
-            ),
+            const Icon(Icons.tune_rounded, color: AppColors.navy, size: 18),
           ],
         ),
       ),
@@ -1073,18 +1080,32 @@ class NseEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          NseIconBadge(icon: icon, tone: AppColors.greenSoft, iconColor: AppColors.green),
-          const SizedBox(height: AppSpacing.md),
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 6),
-          Text(body, style: Theme.of(context).textTheme.bodyMedium),
-          if (action != null) ...[const SizedBox(height: AppSpacing.md), action!],
-        ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              NseIconBadge(icon: icon, tone: AppColors.greenSoft, iconColor: AppColors.green, size: 52),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                body,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              if (action != null) ...[const SizedBox(height: AppSpacing.md), action!],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1097,20 +1118,23 @@ class NseLoadingBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(lines, (i) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Container(
-            height: i == 0 ? 18 : 14,
-            width: i == 0 ? double.infinity : (i.isEven ? double.infinity : 220),
-            decoration: BoxDecoration(
-              color: AppColors.muted.withValues(alpha: 0.65),
-              borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Column(
+        children: List.generate(lines, (i) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Container(
+              height: i == 0 ? 18 : 14,
+              width: i == 0 ? double.infinity : (i.isEven ? double.infinity : 220),
+              decoration: BoxDecoration(
+                color: AppColors.muted.withValues(alpha: 0.65),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }
@@ -1211,11 +1235,21 @@ class NseMenuItemTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    name.replaceAll(RegExp(r'\s+'), ' '),
+                    style: Theme.of(context).textTheme.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   if (description != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
-                      child: Text(description!, style: Theme.of(context).textTheme.bodySmall),
+                      child: Text(
+                        description!.replaceAll(RegExp(r'\s+'), ' '),
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   if (itemMax != null && itemMax! > 1)
                     Padding(
@@ -1279,6 +1313,20 @@ class NseAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
+      // Handle data URLs (base64 images from demo mode)
+      if (imageUrl!.startsWith('data:')) {
+        try {
+          final base64String = imageUrl!.split(',').last;
+          final bytes = base64Decode(base64String);
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: MemoryImage(bytes),
+          );
+        } catch (e) {
+          // Fall through to default if parsing fails
+        }
+      }
+      // Handle network URLs
       return CircleAvatar(
         radius: radius,
         backgroundImage: CachedNetworkImageProvider(imageUrl!),

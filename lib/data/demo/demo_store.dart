@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:nse_mobile/data/demo/demo_ids.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _kDemoPrefsKey = 'nse_demo_seed_v1';
 
 /// In-memory conference data for offline demo mode.
 class DemoStore {
@@ -14,8 +18,45 @@ class DemoStore {
 
   Future<void> init() async {
     if (_ready) return;
-    _seed();
+    // try load persisted demo data first, otherwise seed defaults
+    final loaded = await _loadFromPrefs();
+    if (!loaded) {
+      _seed();
+      await _persistToPrefs();
+    }
     _ready = true;
+  }
+
+  Future<bool> _loadFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_kDemoPrefsKey);
+      if (jsonStr == null || jsonStr.isEmpty) return false;
+      final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+      _tables.clear();
+      for (final entry in decoded.entries) {
+        final v = entry.value;
+        if (v is List) {
+          _tables[entry.key] = v.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        }
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _persistToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final snapshot = <String, dynamic>{};
+      for (final e in _tables.entries) {
+        snapshot[e.key] = e.value;
+      }
+      await prefs.setString(_kDemoPrefsKey, jsonEncode(snapshot));
+    } catch (_) {
+      // ignore persistence errors in demo mode
+    }
   }
 
   List<Map<String, dynamic>> table(String name) =>
@@ -89,8 +130,8 @@ class DemoStore {
       },
       {
         'id': 'sess-2',
-        'title': 'Infrastructure Security Panel',
-        'description': 'Panel on resilient infrastructure in challenging environments.',
+        'title': 'Infrastructure Roundtable',
+        'description': 'Roundtable discussion on resilient infrastructure in challenging environments.',
         'day': 1,
         'track': 'Technical',
         'room': 'Hall B',
@@ -530,19 +571,29 @@ class DemoStore {
     await Future<void>.delayed(const Duration(milliseconds: 120));
 
     if (query.mutation == DemoMutation.insert) {
-      return _insert(query);
+      final res = _insert(query);
+      _persistToPrefs();
+      return res;
     }
     if (query.mutation == DemoMutation.insertMany) {
-      return _insertMany(query);
+      final res = _insertMany(query);
+      _persistToPrefs();
+      return res;
     }
     if (query.mutation == DemoMutation.update) {
-      return _update(query);
+      final res = _update(query);
+      _persistToPrefs();
+      return res;
     }
     if (query.mutation == DemoMutation.upsert) {
-      return _upsert(query);
+      final res = _upsert(query);
+      _persistToPrefs();
+      return res;
     }
     if (query.mutation == DemoMutation.delete) {
-      return _delete(query);
+      final res = _delete(query);
+      _persistToPrefs();
+      return res;
     }
     return _select(query);
   }

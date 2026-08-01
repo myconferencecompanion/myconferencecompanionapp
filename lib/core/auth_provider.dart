@@ -294,6 +294,27 @@ class AuthNotifier extends Notifier<AuthState> {
     state = const AuthState(loading: false);
   }
 
+  /// Sends a password-reset email. Returns null on success, or an error message.
+  Future<String?> resetPassword(String email) async {
+    final trimmed = email.trim();
+    if (trimmed.isEmpty) return 'Enter your email first';
+    if (Env.isDemoMode) {
+      return 'Password reset is available once connected to the live server.';
+    }
+    try {
+      await Supabase.instance.client.auth
+          .resetPasswordForEmail(trimmed)
+          .timeout(const Duration(seconds: 20));
+      return null;
+    } on TimeoutException {
+      return 'Connection timed out. Please try again.';
+    } on AuthException catch (e) {
+      return e.message;
+    } catch (e) {
+      return 'Could not send reset email. Please try again.';
+    }
+  }
+
   Future<void> refreshRoles() async {
     final user = state.user;
     if (user == null) return;

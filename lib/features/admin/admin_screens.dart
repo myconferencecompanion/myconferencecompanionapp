@@ -167,7 +167,9 @@ class AdminHomeScreen extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
-                    child: Row(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
                         _AdminStatChip(
                           label: 'Orders',
@@ -175,22 +177,23 @@ class AdminHomeScreen extends ConsumerWidget {
                           icon: Icons.restaurant_rounded,
                           tone: AppColors.goldSoft,
                           iconColor: AppColors.gold,
+                          onTap: () => context.push('/admin/orders'),
                         ),
-                        const SizedBox(width: 8),
                         _AdminStatChip(
                           label: 'Ushers',
                           count: counts['openUshers'] ?? 0,
                           icon: Icons.support_agent_rounded,
                           tone: AppColors.navySoft,
                           iconColor: AppColors.navy,
+                          onTap: () => context.push('/admin/ushers'),
                         ),
-                        const SizedBox(width: 8),
                         _AdminStatChip(
                           label: 'Errands',
                           count: counts['openErrands'] ?? 0,
                           icon: Icons.local_laundry_service_rounded,
                           tone: AppColors.greenSoft,
                           iconColor: AppColors.green,
+                          onTap: () => context.push('/admin/errands'),
                         ),
                       ],
                     ),
@@ -364,27 +367,58 @@ class _AdminQueueScreenState extends ConsumerState<AdminQueueScreen> {
                       r['reason'] as String? ??
                       r['category'] as String? ??
                       'Item';
+                  final detail = (r['description'] as String?)?.trim().isNotEmpty == true
+                      ? r['description'] as String
+                      : (r['note'] as String?)?.trim().isNotEmpty == true
+                          ? r['note'] as String
+                          : null;
+                  final room = (r['room_number'] as String?)?.trim();
+                  final urgency = r['urgency'] as String?;
+                  final meta = [
+                    if (room != null && room.isNotEmpty) 'Room $room',
+                    if (r['location_label'] != null) r['location_label'] as String,
+                  ].join(' · ');
+                  final isUrgent = urgency == 'urgent';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: NseCard(
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(label, style: Theme.of(context).textTheme.titleSmall),
-                                const SizedBox(height: 4),
-                                NseStatusChip(label: status.replaceAll('_', ' ')),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  label.replaceAll('_', ' '),
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                              ),
+                              if (isUrgent) ...[
+                                const NseStatusChip(label: 'Urgent', tone: AppColors.goldSoft, textColor: AppColors.gold),
+                                const SizedBox(width: 6),
                               ],
-                            ),
+                              NseStatusChip(label: status.replaceAll('_', ' ')),
+                            ],
                           ),
-                          if (next < widget.statuses.length)
-                            FilledButton.tonalIcon(
-                              onPressed: () => _advance(r),
-                              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                              label: Text(widget.statuses[next].replaceAll('_', ' ')),
+                          if (detail != null) ...[
+                            const SizedBox(height: 6),
+                            Text(detail, style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                          if (meta.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(meta, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.inkSoft)),
+                          ],
+                          if (next < widget.statuses.length) ...[
+                            const SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton.tonalIcon(
+                                onPressed: () => _advance(r),
+                                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                                label: Text(widget.statuses[next].replaceAll('_', ' ')),
+                              ),
                             ),
+                          ],
                         ],
                       ),
                     ),
@@ -495,6 +529,7 @@ class _AdminStatChip extends StatelessWidget {
     required this.icon,
     required this.tone,
     required this.iconColor,
+    this.onTap,
   });
 
   final String label;
@@ -502,27 +537,29 @@ class _AdminStatChip extends StatelessWidget {
   final IconData icon;
   final Color tone;
   final Color iconColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 104),
       child: NseCard(
+        onTap: onTap,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             NseIconBadge(icon: icon, tone: tone, iconColor: iconColor, size: 36),
             const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$count',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                  Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.inkSoft)),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$count',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.inkSoft)),
+              ],
             ),
           ],
         ),

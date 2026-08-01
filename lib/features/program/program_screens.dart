@@ -96,39 +96,71 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: AppSpacing.sm),
-                  SizedBox(
-                    height: 52,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      itemCount: conferenceDays.length,
-                      separatorBuilder: (_, i) => const SizedBox(width: 8),
-                      itemBuilder: (context, i) {
-                        final d = conferenceDays[i];
-                        return Center(
-                          child: NsePillChip(
-                            label: d.label,
-                            selected: _day == d.day,
-                            onTap: () => setState(() => _day = d.day),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+                          child: NseCard(
+                            tint: AppColors.navySoft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const NseIconBadge(
+                                      icon: Icons.view_day_rounded,
+                                      tone: AppColors.navySoft,
+                                      iconColor: AppColors.navy,
+                                      size: 40,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            dayLabel.toUpperCase(),
+                                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                  color: AppColors.inkSoft,
+                                                  fontWeight: FontWeight.w700,
+                                                  letterSpacing: 0.6,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${filtered.length} session${filtered.length == 1 ? '' : 's'} today',
+                                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(Icons.schedule_rounded, color: AppColors.navy),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                SizedBox(
+                                  height: 52,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: EdgeInsets.zero,
+                                    itemCount: conferenceDays.length,
+                                    separatorBuilder: (_, i) => const SizedBox(width: 8),
+                                    itemBuilder: (context, i) {
+                                      final d = conferenceDays[i];
+                                      return Center(
+                                        child: NsePillChip(
+                                          label: d.label,
+                                          selected: _day == d.day,
+                                          onTap: () => setState(() => _day = d.day),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
-                    child: Row(
-                      children: [
-                        Text(dayLabel.toUpperCase(), style: Theme.of(context).textTheme.labelSmall),
-                        const Spacer(),
-                        Text(
-                          '${filtered.length} session${filtered.length == 1 ? '' : 's'}',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.navy),
                         ),
-                      ],
-                    ),
-                  ),
                   Expanded(
                     child: filtered.isEmpty
                         ? const Padding(
@@ -172,13 +204,23 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(s['title'] as String,
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis),
-                                          const SizedBox(height: 5),
+                                          if (track != null) ...[
+                                            NseStatusChip(
+                                              label: track,
+                                              tone: tone.$2,
+                                              textColor: tone.$1,
+                                            ),
+                                            const SizedBox(height: 8),
+                                          ],
+                                          Text(
+                                            sanitizeDisplay(s['title'] as String),
+                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
                                           Row(
                                             children: [
                                               const Icon(Icons.place_rounded, size: 13, color: AppColors.inkSoft),
@@ -193,12 +235,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen>
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              if (speakers.isNotEmpty) ...[
-                                                const SizedBox(width: 8),
-                                                _SpeakerStack(speakers: speakers),
-                                              ],
                                             ],
                                           ),
+                                          if (speakers.isNotEmpty) ...[
+                                            const SizedBox(height: 10),
+                                            _SpeakerStack(speakers: speakers),
+                                          ],
                                         ],
                                       ),
                                     ),
@@ -246,7 +288,7 @@ class _SpeakerStack extends StatelessWidget {
                   border: Border.fromBorderSide(BorderSide(color: AppColors.surface, width: 2)),
                 ),
                 child: NseAvatar(
-                  name: show[i]['name'] as String?,
+                  name: sanitizeDisplay(show[i]['name'] as String?),
                   imageUrl: show[i]['avatar_url'] as String?,
                   radius: size / 2 - 2,
                 ),
@@ -325,7 +367,7 @@ class SessionDetailScreen extends ConsumerWidget {
                       _HeroPill(label: s['track'] as String),
                     if (s['track'] != null) const SizedBox(height: 12),
                     Text(
-                      s['title'] as String,
+                      sanitizeDisplay(s['title'] as String),
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
@@ -374,8 +416,8 @@ class SessionDetailScreen extends ConsumerWidget {
                       .map(
                         (sp) => NseListRow(
                           icon: Icons.mic_rounded,
-                          title: sp['name'] as String,
-                          subtitle: sp['title'] as String? ?? '',
+                          title: sanitizeDisplay(sp['name'] as String),
+                          subtitle: sanitizeDisplay(sp['title'] as String? ?? ''),
                           onTap: () => context.push('/speakers/${sp['id']}'),
                         ),
                       )
@@ -453,13 +495,13 @@ class SpeakersListScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   NseAvatar(
-                    name: sp['name'] as String?,
+                    name: sanitizeDisplay(sp['name'] as String?),
                     imageUrl: sp['avatar_url'] as String?,
                     radius: 30,
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    sp['name'] as String,
+                    sanitizeDisplay(sp['name'] as String),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleSmall,
                     maxLines: 2,
@@ -467,7 +509,7 @@ class SpeakersListScreen extends ConsumerWidget {
                   ),
                   if (sp['title'] != null)
                     Text(
-                      sp['title'] as String,
+                      sanitizeDisplay(sp['title'] as String),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 2,
@@ -539,7 +581,7 @@ class SpeakerDetailScreen extends ConsumerWidget {
                         border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                       ),
                       child: NseAvatar(
-                        name: sp['name'] as String?,
+                        name: sanitizeDisplay(sp['name'] as String?),
                         imageUrl: sp['avatar_url'] as String?,
                         radius: 42,
                       ),
@@ -550,7 +592,7 @@ class SpeakerDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                     ],
                     Text(
-                      sp['name'] as String,
+                      sanitizeDisplay(sp['name'] as String),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             color: Colors.white,
@@ -559,7 +601,7 @@ class SpeakerDetailScreen extends ConsumerWidget {
                     ),
                     if (sp['title'] != null)
                       Text(
-                        sp['title'] as String,
+                        sanitizeDisplay(sp['title'] as String),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                       ),
@@ -585,7 +627,7 @@ class SpeakerDetailScreen extends ConsumerWidget {
                       .map(
                         (s) => NseListRow(
                           icon: Icons.event_rounded,
-                          title: s['title'] as String,
+                          title: sanitizeDisplay(s['title'] as String),
                           onTap: () => context.push('/schedule/${s['id']}'),
                         ),
                       )
@@ -737,7 +779,7 @@ class MyAgendaScreen extends ConsumerWidget {
                                 formatTimeRange(start, end),
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.navy),
                               ),
-                            Text(s['title'] as String, style: Theme.of(context).textTheme.titleSmall),
+                            Text(sanitizeDisplay(s['title'] as String), style: Theme.of(context).textTheme.titleSmall),
                             Text(
                               [hotspotNameForRoom(s['room'] as String?), s['track']]
                                   .whereType<String>()

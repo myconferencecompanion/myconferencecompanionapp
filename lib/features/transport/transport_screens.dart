@@ -44,6 +44,35 @@ class MyTransportScreen extends ConsumerWidget {
                 subtitle: _policyExplain(policy),
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
               ),
+              NseCard(
+                tint: AppColors.navySoft,
+                child: Row(
+                  children: [
+                    const NseIconBadge(
+                      icon: Icons.directions_bus_rounded,
+                      tone: AppColors.navySoft,
+                      iconColor: AppColors.navy,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Transport overview', style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 4),
+                          Text(
+                            assignment != null
+                                ? 'Your shuttle assignment is live. Review your bus, marshal, and run times below.'
+                                : 'No bus assigned yet. Check back with logistics at registration.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
               if (bus != null) ...[
                 NseCard(
                   child: Column(
@@ -62,8 +91,8 @@ class MyTransportScreen extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(bus.name, style: Theme.of(context).textTheme.titleLarge),
-                                Text(bus.routeLabel, style: Theme.of(context).textTheme.bodySmall),
+                                Text(sanitizeDisplay(bus.name), style: Theme.of(context).textTheme.titleLarge),
+                                Text(sanitizeDisplay(bus.routeLabel), style: Theme.of(context).textTheme.bodySmall),
                               ],
                             ),
                           ),
@@ -106,7 +135,7 @@ class MyTransportScreen extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(r.label, style: Theme.of(context).textTheme.titleSmall),
+                                  Text(sanitizeDisplay(r.label), style: Theme.of(context).textTheme.titleSmall),
                                   Text(
                                     r.direction == 'to_venue' ? 'Hotel → ICC' : 'ICC → Hotel',
                                     style: Theme.of(context).textTheme.bodySmall,
@@ -115,7 +144,7 @@ class MyTransportScreen extends ConsumerWidget {
                               ),
                             ),
                             NseStatusChip(
-                              label: r.status == 'departed' ? 'Departed' : 'Scheduled',
+                              label: sanitizeDisplay(r.status == 'departed' ? 'Departed' : 'Scheduled'),
                               tone: r.isLocked ? AppColors.greenSoft : AppColors.navySoft,
                             ),
                           ],
@@ -138,14 +167,14 @@ class MyTransportScreen extends ConsumerWidget {
     );
   }
 
-  Widget _row(BuildContext context, String label, String value) {
+  Widget _row(BuildContext context, String label, String? value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: 100, child: Text(label, style: Theme.of(context).textTheme.labelSmall)),
-          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodyMedium)),
+          Expanded(child: Text(sanitizeDisplay(value), style: Theme.of(context).textTheme.bodyMedium)),
         ],
       ),
     );
@@ -312,7 +341,7 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                           (b) => Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: ChoiceChip(
-                              label: Text(b.name),
+                              label: Text(sanitizeDisplay(b.name)),
                               selected: b.id == busId,
                               onSelected: (_) => setState(() {
                                 _selectedBusId = b.id;
@@ -329,8 +358,8 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${bus.name} · ${bus.routeLabel}', style: Theme.of(context).textTheme.titleSmall),
-                      Text('Capacity ${bus.capacity} · ${bus.pickupPoint}',
+                        Text(sanitizeDisplay('${bus.name} · ${bus.routeLabel}'), style: Theme.of(context).textTheme.titleSmall),
+                        Text(sanitizeDisplay('Capacity ${bus.capacity} · ${bus.pickupPoint}'),
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
@@ -346,7 +375,7 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                         .map(
                           (r) => DropdownMenuItem(
                             value: r.id,
-                            child: Text('${r.label} · ${r.status}'),
+                            child: Text(sanitizeDisplay('${r.label} · ${r.status}')),
                           ),
                         )
                         .toList(),
@@ -383,14 +412,18 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Headcount is taken once per run. After departure the manifest cannot be changed.',
+                      run.isLocked
+                          ? 'This run has departed. The manifest is now locked.'
+                          : boarded.isEmpty
+                              ? 'Tap delegates below to board them, then "Depart & lock" to take the final headcount.'
+                              : 'Headcount is taken once per run. After departure the manifest cannot be changed.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     ...busRoster.map((p) {
                       final id = p['user_id'] as String;
                       final on = boarded.contains(id);
-                      final name = p['display_name'] as String? ?? 'Delegate';
+                      final name = sanitizeDisplay(p['display_name'] as String? ?? 'Delegate');
                       return NseCard(
                         onTap: run.isLocked
                             ? null
@@ -411,7 +444,7 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                                 }
                                 setState(() => _refresh++);
                               },
-                        child: Row(
+                            child: Row(
                           children: [
                             Icon(
                               on ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
@@ -420,7 +453,7 @@ class _TransportAdminScreenState extends ConsumerState<TransportAdminScreen> {
                             const SizedBox(width: 12),
                             Expanded(child: Text(name)),
                             if (p['bus_id'] != null && p['bus_id'] != busId)
-                              NseStatusChip(label: 'Route', tone: AppColors.goldSoft),
+                              NseStatusChip(label: sanitizeDisplay('Route'), tone: AppColors.goldSoft),
                           ],
                         ),
                       );

@@ -73,20 +73,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             SliverToBoxAdapter(
-              child: Transform.translate(
-                offset: const Offset(0, -18),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
-                  child: loading
-                      ? const NseLoadingBlock(lines: 3)
-                      : _LatestAnnouncementCard(
-                          title: announcement?['title'] as String? ?? 'No updates yet',
-                          body: announcement?['body'] as String? ??
-                              'Conference announcements will appear here first.',
-                          high: announcement?['priority'] == 'high',
-                          onTap: () => context.push('/announcements'),
-                        ),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.sm),
+                child: loading
+                    ? const NseLoadingBlock(lines: 3)
+                    : _LatestAnnouncementCard(
+                        title: announcement?['title'] as String? ?? 'No updates yet',
+                        body: announcement?['body'] as String? ??
+                            'Conference announcements will appear here first.',
+                        onTap: () => context.push('/announcements'),
+                      ),
               ),
             ),
             SliverPadding(
@@ -265,20 +261,18 @@ class _LatestAnnouncementCard extends StatelessWidget {
   const _LatestAnnouncementCard({
     required this.title,
     required this.body,
-    required this.high,
     required this.onTap,
   });
 
   final String title;
   final String body;
-  final bool high;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return NseCard(
       onTap: onTap,
-      tint: high ? AppColors.goldSoft : AppColors.surface,
+      tint: AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -286,8 +280,8 @@ class _LatestAnnouncementCard extends StatelessWidget {
             children: [
               NseIconBadge(
                 icon: Icons.campaign_rounded,
-                tone: high ? AppColors.gold.withValues(alpha: 0.22) : AppColors.navySoft,
-                iconColor: high ? AppColors.gold : AppColors.navy,
+                tone: AppColors.navySoft,
+                iconColor: AppColors.navy,
                 size: 40,
               ),
               const SizedBox(width: 10),
@@ -303,15 +297,6 @@ class _LatestAnnouncementCard extends StatelessWidget {
                             letterSpacing: 0.3,
                           ),
                     ),
-                    if (high)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: NseStatusChip(
-                          label: 'Priority',
-                          tone: AppColors.gold.withValues(alpha: 0.2),
-                          textColor: AppColors.gold,
-                        ),
-                      ),
                   ],
                 ),
               ),

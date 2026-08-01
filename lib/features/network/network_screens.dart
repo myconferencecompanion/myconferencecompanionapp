@@ -52,9 +52,12 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen>
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
-            child: TabBar(
-              controller: _tabs,
-              tabs: const [Tab(text: 'Chat rooms'), Tab(text: 'People')],
+            child: NseCard(
+              padding: const EdgeInsets.all(6),
+              child: TabBar(
+                controller: _tabs,
+                tabs: const [Tab(text: 'Chat rooms'), Tab(text: 'People')],
+              ),
             ),
           ),
           Expanded(
@@ -83,9 +86,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen>
                     onTap: () => context.push('/network/room/${r['id']}'),
                     child: NseListRow(
                       icon: Icons.forum_rounded,
-                      title: r['name'] as String,
-                      subtitle: r['description'] as String? ?? 'Join the conversation',
-                      onTap: () => context.push('/network/room/${r['id']}'),
+                      title: sanitizeDisplay(r['name'] as String?),
+                      subtitle: sanitizeDisplay(r['description'] as String? ?? 'Join the conversation'),
                     ),
                   );
                 },
@@ -107,14 +109,17 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen>
               return Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: TextField(
-                      controller: _search,
-                      decoration: const InputDecoration(
-                        hintText: 'Search delegates',
-                        prefixIcon: Icon(Icons.search_rounded),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+                    child: NseCard(
+                      padding: const EdgeInsets.all(10),
+                      child: TextField(
+                        controller: _search,
+                        decoration: const InputDecoration(
+                          hintText: 'Search delegates',
+                          prefixIcon: Icon(Icons.search_rounded),
+                        ),
+                        onChanged: (_) => setState(() {}),
                       ),
-                      onChanged: (_) => setState(() {}),
                     ),
                   ),
                   Expanded(
@@ -135,8 +140,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen>
                                 child: Row(
                                   children: [
                                     NseAvatar(
-                                      name: p['display_name'] as String?,
-                                      imageUrl: p['avatar_url'] as String?,
+                                      name: sanitizeDisplay(p['display_name'] as String?),
+                                      imageUrl: sanitizeDisplay(p['avatar_url'] as String?),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
@@ -144,11 +149,12 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen>
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            p['display_name'] as String? ?? 'Delegate',
+                                            sanitizeDisplay(p['display_name'] as String?).isEmpty ? 'Delegate' : sanitizeDisplay(p['display_name'] as String?),
                                             style: Theme.of(context).textTheme.titleSmall,
                                           ),
+                                          const SizedBox(height: 2),
                                           Text(
-                                            '${p['title'] ?? ''} ${p['company'] ?? ''}'.trim(),
+                                            sanitizeDisplay([p['title'], p['company']].where((v) => v != null && '$v'.trim().isNotEmpty).map((v) => '$v').join(' · ')),
                                             style: Theme.of(context).textTheme.bodySmall,
                                           ),
                                         ],
@@ -203,7 +209,7 @@ class _RoomChatScreenState extends ConsumerState<RoomChatScreen> {
         .select('name')
         .eq('id', widget.roomId)
         .maybeSingle();
-    if (mounted && room != null) setState(() => _roomName = room['name'] as String?);
+    if (mounted && room != null) setState(() => _roomName = sanitizeDisplay(room['name'] as String?));
   }
 
   Future<void> _load() async {
@@ -258,7 +264,7 @@ class _RoomChatScreenState extends ConsumerState<RoomChatScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        title: Text(_roomName ?? 'Room chat', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            title: Text(sanitizeDisplay(_roomName).isEmpty ? 'Room chat' : sanitizeDisplay(_roomName), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: [
@@ -269,7 +275,7 @@ class _RoomChatScreenState extends ConsumerState<RoomChatScreen> {
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: NseEmptyState(
                         title: 'Start the conversation',
-                        body: 'Say hello to delegates in ${_roomName ?? 'this room'}.',
+                        body: 'Say hello to delegates in ${sanitizeDisplay(_roomName).isEmpty ? 'this room' : sanitizeDisplay(_roomName)}.',
                         icon: Icons.chat_outlined,
                       ),
                     ),
@@ -283,9 +289,13 @@ class _RoomChatScreenState extends ConsumerState<RoomChatScreen> {
                       final profile = m['profiles'] as Map<String, dynamic>?;
                       final mine = m['user_id'] == ref.watch(authProvider).userId;
                       return NseChatBubble(
-                        text: m['content'] as String,
+                        text: sanitizeDisplay(m['content'] as String?),
                         mine: mine,
-                        author: mine ? null : profile?['display_name'] as String?,
+                        author: mine
+                            ? null
+                            : (sanitizeDisplay(profile?['display_name'] as String?).isEmpty
+                                ? null
+                                : sanitizeDisplay(profile?['display_name'] as String?)),
                       );
                     },
                   ),
@@ -307,12 +317,16 @@ class DmScreen extends ConsumerStatefulWidget {
 
 class _DmScreenState extends ConsumerState<DmScreen> {
   final _input = TextEditingController();
+  final _scroll = ScrollController();
   List<Map<String, dynamic>> _messages = [];
   String? _peerName;
+  Timer? _poll;
 
   @override
   void dispose() {
+    _poll?.cancel();
     _input.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -323,7 +337,7 @@ class _DmScreenState extends ConsumerState<DmScreen> {
         .eq('id', widget.userId)
         .maybeSingle();
     if (mounted && profile != null) {
-      setState(() => _peerName = profile['display_name'] as String?);
+      setState(() => _peerName = sanitizeDisplay(profile['display_name'] as String?));
     }
   }
 
@@ -335,7 +349,12 @@ class _DmScreenState extends ConsumerState<DmScreen> {
         .select()
         .or('and(sender_id.eq.$me,recipient_id.eq.${widget.userId}),and(sender_id.eq.${widget.userId},recipient_id.eq.$me)')
         .order('created_at');
-    if (mounted) setState(() => _messages = (data as List).cast<Map<String, dynamic>>());
+    if (!mounted) return;
+    setState(() => _messages = (data as List).cast<Map<String, dynamic>>());
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    if (_scroll.hasClients) {
+      _scroll.jumpTo(_scroll.position.maxScrollExtent);
+    }
   }
 
   @override
@@ -345,6 +364,17 @@ class _DmScreenState extends ConsumerState<DmScreen> {
       await _loadMeta();
       await _load();
     });
+    final me = ref.read(authProvider).userId;
+    if (Env.isDemoMode) {
+      _poll = Timer.periodic(const Duration(seconds: 4), (_) => _load());
+    } else if (me != null) {
+      ref.read(backendProvider).channel('dm-$me-${widget.userId}').onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'direct_messages',
+        callback: (_) => _load(),
+      ).subscribe();
+    }
   }
 
   Future<void> _send() async {
@@ -366,7 +396,7 @@ class _DmScreenState extends ConsumerState<DmScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        title: Text(_peerName ?? 'Direct message', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        title: Text(sanitizeDisplay(_peerName).isEmpty ? 'Direct message' : sanitizeDisplay(_peerName), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: [
@@ -378,12 +408,13 @@ class _DmScreenState extends ConsumerState<DmScreen> {
                     icon: Icons.chat_bubble_outline_rounded,
                   )
                 : ListView.builder(
+              controller: _scroll,
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: _messages.length,
               itemBuilder: (context, i) {
                 final m = _messages[i];
                 return NseChatBubble(
-                  text: m['content'] as String,
+                  text: sanitizeDisplay(m['content'] as String?),
                   mine: m['sender_id'] == me,
                 );
               },

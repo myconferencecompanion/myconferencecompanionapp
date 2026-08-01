@@ -6,6 +6,8 @@ import 'package:nse_mobile/config/event_config.dart';
 import 'package:nse_mobile/core/widgets/nse_ui.dart';
 import 'package:nse_mobile/data/reference_data.dart';
 import 'package:nse_mobile/data/transport_data.dart';
+import 'package:nse_mobile/data/venue_navigation.dart';
+import 'package:nse_mobile/features/map/venue_indoor_map_screen.dart';
 import 'package:nse_mobile/features/map/venue_screens.dart';
 import 'package:nse_mobile/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,6 +32,21 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
     ReferenceData.maiduguriPois().then((p) {
       if (mounted) setState(() => _pois = p);
     });
+    // Deep link: /map?room=Hall A opens the indoor map focused on that room.
+    if (widget.room != null && widget.room!.trim().isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openRoom(widget.room!));
+    }
+  }
+
+  void _openRoom(String room) {
+    final hits = VenueNavigation.search(room);
+    final poiId = hits.isNotEmpty ? hits.first.id : null;
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => VenueIndoorMapScreen(initialPoiId: poiId),
+      ),
+    );
   }
 
   @override
@@ -54,13 +71,16 @@ class _MapScreenState extends State<MapScreen> with SingleTickerProviderStateMix
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
-            child: TabBar(
-              controller: _tabs,
-              tabs: const [
-                Tab(text: 'Venue'),
-                Tab(text: 'Outdoor'),
-                Tab(text: 'Nearby'),
-              ],
+            child: NseCard(
+              padding: const EdgeInsets.all(6),
+              child: TabBar(
+                controller: _tabs,
+                tabs: const [
+                  Tab(text: 'Venue'),
+                  Tab(text: 'Outdoor'),
+                  Tab(text: 'Nearby'),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -100,8 +120,8 @@ class _OutdoorMap extends StatelessWidget {
                 markerId: const MarkerId('venue'),
                 position: LatLng(vLat, vLng),
                 infoWindow: InfoWindow(
-                  title: EventConfig.venueName,
-                  snippet: EventConfig.venueAddress,
+                  title: sanitizeDisplay(EventConfig.venueName),
+                  snippet: sanitizeDisplay(EventConfig.venueAddress),
                 ),
               ),
             },
@@ -110,14 +130,14 @@ class _OutdoorMap extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: NseCard(
-            child: Column(
+                child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(EventConfig.venueName, style: Theme.of(context).textTheme.titleSmall),
-                Text(EventConfig.venueAddress, style: Theme.of(context).textTheme.bodySmall),
+                Text(sanitizeDisplay(EventConfig.venueName), style: Theme.of(context).textTheme.titleSmall),
+                Text(sanitizeDisplay(EventConfig.venueAddress), style: Theme.of(context).textTheme.bodySmall),
                 if (pois?['shuttle'] != null) ...[
                   const SizedBox(height: 8),
-                  Text(pois!['shuttle'] as String, style: Theme.of(context).textTheme.bodySmall),
+                  Text(sanitizeDisplay(pois!['shuttle'] as String?), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ],
             ),
@@ -143,27 +163,27 @@ class _NearbyMapTab extends StatelessWidget {
     final vLng = (venue['longitude'] as num?)?.toDouble() ?? EventConfig.venueLongitude;
     final places = (pois!['nearby'] as List).cast<Map<String, dynamic>>();
 
-    final markers = <Marker>{
-      const Marker(
-        markerId: MarkerId('icc'),
-        position: LatLng(EventConfig.venueLatitude, EventConfig.venueLongitude),
-        infoWindow: InfoWindow(title: 'ICC Maiduguri', snippet: 'Conference venue'),
-      ),
-      ...places.map((p) {
-        final lat = (p['latitude'] as num?)?.toDouble();
-        final lng = (p['longitude'] as num?)?.toDouble();
-        if (lat == null || lng == null) return null;
-        final km = haversineKm(vLat, vLng, lat, lng);
-        return Marker(
-          markerId: MarkerId(p['id'] as String? ?? p['name'] as String),
-          position: LatLng(lat, lng),
-          infoWindow: InfoWindow(
-            title: p['name'] as String,
-            snippet: '${formatDistanceKm(km)} from ICC',
+        final markers = <Marker>{
+          const Marker(
+            markerId: MarkerId('icc'),
+            position: LatLng(EventConfig.venueLatitude, EventConfig.venueLongitude),
+            infoWindow: InfoWindow(title: 'ICC Maiduguri', snippet: 'Conference venue'),
           ),
-        );
-      }).whereType<Marker>(),
-    };
+          ...places.map((p) {
+            final lat = (p['latitude'] as num?)?.toDouble();
+            final lng = (p['longitude'] as num?)?.toDouble();
+            if (lat == null || lng == null) return null;
+            final km = haversineKm(vLat, vLng, lat, lng);
+            return Marker(
+              markerId: MarkerId(sanitizeDisplay(p['id'] as String? ?? p['name'] as String)),
+              position: LatLng(lat, lng),
+              infoWindow: InfoWindow(
+                title: sanitizeDisplay(p['name'] as String?),
+                snippet: '${formatDistanceKm(km)} from ICC',
+              ),
+            );
+          }).whereType<Marker>(),
+        };
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -198,7 +218,7 @@ class _NearbyMapTab extends StatelessWidget {
             child: NseCard(
               padding: EdgeInsets.zero,
               onTap: () {
-                final q = Uri.encodeComponent(p['query'] as String);
+                final q = Uri.encodeComponent(sanitizeDisplay(p['query'] as String? ?? ''));
                 launchUrl(
                   Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$q'),
                   mode: LaunchMode.externalApplication,
@@ -224,12 +244,12 @@ class _NearbyMapTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(p['name'] as String, style: Theme.of(context).textTheme.titleSmall),
-                          Text(p['note'] as String? ?? '', style: Theme.of(context).textTheme.bodySmall),
+                          Text(sanitizeDisplay(p['name'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                          Text(sanitizeDisplay(p['note'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: 6),
                           Row(
                             children: [
-                              NseStatusChip(label: p['category'] as String, tone: AppColors.navySoft),
+                              NseStatusChip(label: sanitizeDisplay(p['category'] as String?), tone: AppColors.navySoft),
                               const SizedBox(width: 8),
                               if (km != null)
                                 Text(

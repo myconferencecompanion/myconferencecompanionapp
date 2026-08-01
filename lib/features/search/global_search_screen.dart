@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:nse_mobile/core/auth_provider.dart';
 import 'package:nse_mobile/core/global_search.dart';
 import 'package:nse_mobile/core/widgets/nse_ui.dart';
-import 'package:nse_mobile/features/chatbot/chatbot_screen.dart';
 import 'package:nse_mobile/theme/app_theme.dart';
 
 class GlobalSearchScreen extends ConsumerStatefulWidget {
@@ -62,6 +61,10 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
 
   void _onQueryChanged() {
     _debounce?.cancel();
+    if (_controller.text.trim().isEmpty) {
+      setState(() => _results = []);
+      return;
+    }
     _debounce = Timer(const Duration(milliseconds: 180), () => _runSearch(_controller.text));
   }
 
@@ -80,15 +83,10 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
 
   void _openHit(SearchHit hit) {
     if (hit.faqAnswer != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => ChatbotScreen(
-            initialQuestion: hit.title,
-            initialAnswer: hit.faqAnswer,
-          ),
-        ),
-      );
+      context.push('/faq', extra: {
+        'question': hit.title,
+        'answer': hit.faqAnswer,
+      });
       return;
     }
     context.push(hit.route);

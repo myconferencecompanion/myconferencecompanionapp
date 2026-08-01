@@ -150,20 +150,30 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
               ],
-              Row(
-                children: [
-                  NseStatusChip(
-                    label: '#${hotel.rank} · ${hotel.tierLabel}',
-                    tone: _tierTone(hotel.qualityTier),
-                  ),
-                  const SizedBox(width: 8),
-                  NseStatusChip(label: hotel.tone, tone: AppColors.navySoft),
-                ],
+              NseCard(
+                tint: AppColors.cream,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        NseStatusChip(
+                          label: '#${hotel.rank}',
+                          tone: _tierTone(hotel.qualityTier),
+                        ),
+                        NseStatusChip(label: hotel.tierLabel, tone: AppColors.navySoft),
+                        NseStatusChip(label: hotel.tone, tone: AppColors.greenSoft),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(hotel.name, style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(height: 6),
+                    Text(hotel.description, style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(hotel.name, style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 6),
-              Text(hotel.description, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: AppSpacing.md),
               NseCard(
                 child: Column(
