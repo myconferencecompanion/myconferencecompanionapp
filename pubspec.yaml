@@ -59,6 +59,7 @@ flutter_native_splash:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/data/hotels.json
     - assets/data/conference_info.json
     - assets/images/nse_logo.png
