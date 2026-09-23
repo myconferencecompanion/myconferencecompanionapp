@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, DEMO_MESSAGE } from "@/lib/supabase-stub";
 import { toast } from "sonner";
 
 export type AppRole =
@@ -25,6 +26,8 @@ type AuthContextValue = {
   hasAnyAdminRole: (roles: AppRole[]) => boolean;
   refreshRoles: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Non-null when running without a backend (demo mode). */
+  demoMessage: string | null;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -59,6 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+
+    if (!isSupabaseConfigured()) {
+      // Demo mode: no backend — stay "signed out" without crashing.
+      setLoading(false);
+      return;
+    }
 
     const { data: subscription } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (!mounted) return;
@@ -109,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut: async () => {
       await supabase.auth.signOut();
     },
+    demoMessage: isSupabaseConfigured() ? null : DEMO_MESSAGE,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

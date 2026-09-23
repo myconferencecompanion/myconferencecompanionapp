@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { user } = useAuth();
+  const { user, demoMessage } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -74,6 +74,9 @@ function ProfilePage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
         <h1 className="text-xl font-bold">Your profile</h1>
+        {demoMessage && (
+          <p className="mt-1 text-xs text-white/70">{demoMessage}</p>
+        )}
         <p className="mt-1 text-sm text-white/70">How other attendees see you in the network.</p>
       </div>
 

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatTimeRange, formatTime, initials } from "@/lib/format";
+import { formatTimeRange, initials } from "@/lib/format";
 import {
   ShieldAlert,
   MessageSquare,
@@ -12,6 +12,11 @@ import {
   ConciergeBell,
   Compass,
   Calendar,
+  Sparkles,
+  Hotel,
+  Bus,
+  HelpCircle,
+  MapPin,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -22,14 +27,18 @@ export const Route = createFileRoute("/_authenticated/home")({
 const quickActions = [
   { to: "/maidguide", label: "Maidguide", icon: Compass, tone: "bg-primary-soft text-primary" },
   { to: "/schedule", label: "Schedule", icon: Calendar, tone: "bg-accent-soft text-warning-foreground" },
+  { to: "/accommodation", label: "Hotels", icon: Hotel, tone: "bg-primary-soft text-primary" },
+  { to: "/nearby", label: "Nearby", icon: MapPin, tone: "bg-accent-soft text-warning-foreground" },
   { to: "/network", label: "Networking", icon: MessageSquare, tone: "bg-primary-soft text-primary" },
   { to: "/concierge", label: "Concierge", icon: ConciergeBell, tone: "bg-accent-soft text-warning-foreground" },
   { to: "/announcements", label: "News", icon: Megaphone, tone: "bg-primary-soft text-primary" },
+  { to: "/transport", label: "Transport", icon: Bus, tone: "bg-primary-soft text-primary" },
+  { to: "/faq", label: "Guide", icon: HelpCircle, tone: "bg-accent-soft text-warning-foreground" },
   { to: "/emergency", label: "Emergency", icon: ShieldAlert, tone: "bg-destructive/10 text-destructive" },
 ] as const;
 
 function HomePage() {
-  const { user } = useAuth();
+  const { user, demoMessage } = useAuth();
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -82,7 +91,7 @@ function HomePage() {
   });
 
   const greeting = greetingText();
-  const firstName = profile?.display_name?.split(" ")[0] ?? "there";
+  const firstName = profile?.display_name?.split(" ")[0] ?? (user ? "there" : "Delegate");
 
   return (
     <div className="space-y-5 px-4 pt-5">
@@ -90,6 +99,15 @@ function HomePage() {
         <p className="text-sm text-muted-foreground">{greeting},</p>
         <h2 className="text-2xl font-bold tracking-tight">{firstName} 👋</h2>
       </section>
+
+      {demoMessage && (
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent-soft px-4 py-3">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-warning-foreground" />
+          <p className="text-xs font-medium leading-relaxed text-warning-foreground">
+            {demoMessage}
+          </p>
+        </div>
+      )}
 
       {announcement && (
         <Link to="/announcements" className="block">

@@ -3,6 +3,7 @@ import { EVENT_CONFIG } from "@/lib/event-config";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Sparkles, Users, ShieldAlert, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase-stub";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/")({
     ],
   }),
   beforeLoad: async () => {
+    if (!isSupabaseConfigured()) return; // demo mode: land here, browse via "Explore"
     const { data } = await supabase.auth.getUser();
     if (data.user) throw redirect({ to: "/home" });
   },
@@ -56,12 +58,25 @@ function LandingPage() {
         </div>
 
         <div className="space-y-3">
-          <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
-            <Link to="/auth">Get started</Link>
-          </Button>
-          <p className="text-center text-xs text-white/60">
-            Free for all confirmed attendees · Sign in with email or Google
-          </p>
+          {isSupabaseConfigured() ? (
+            <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
+              <Link to="/auth">Get started</Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
+                <Link to="/home">Explore the app</Link>
+              </Button>
+              <p className="text-center text-xs text-white/60">
+                Demo mode — sign-in, orders and chats unlock with the live backend.
+              </p>
+            </>
+          )}
+          {isSupabaseConfigured() && (
+            <p className="text-center text-xs text-white/60">
+              Free for all confirmed attendees · Sign in with email or Google
+            </p>
+          )}
         </div>
       </div>
     </div>
