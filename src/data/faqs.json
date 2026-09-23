@@ -30,7 +30,7 @@
   {
     "id": "faq-03",
     "category": "Registration",
-    "question": "I lost my badge — what should I do?",
+    "question": "I lost my badge - what should I do?",
     "answer": "Report to **Concierge** or the **Main Lobby** registration desk with your ID. A replacement badge will be issued and your old one deactivated.",
     "keywords": [
       "lost",
@@ -84,7 +84,7 @@
     "id": "faq-07",
     "category": "Venue",
     "question": "How do I get from Maiduguri Airport to ICC?",
-    "answer": "Allow about **45 minutes** via Airport Road → Baga Road → ICC. Delegate shuttles may be arranged for partner hotels — check **Announcements** for the latest pickup times.",
+    "answer": "Allow about **45 minutes** via Airport Road → Baga Road → ICC. Delegate shuttles may be arranged for partner hotels - check **Announcements** for the latest pickup times.",
     "keywords": [
       "airport",
       "flight",
@@ -98,7 +98,7 @@
     "id": "faq-08",
     "category": "Venue",
     "question": "Is parking available at ICC?",
-    "answer": "Yes — **on-site parking** with security. Follow marshals at the main gate. **VIP drop-off** is at the lobby canopy. See **Maiduguri guide** for details.",
+    "answer": "Yes - **on-site parking** with security. Follow marshals at the main gate. **VIP drop-off** is at the lobby canopy. See **Maiduguri guide** for details.",
     "keywords": [
       "parking",
       "car",
@@ -111,7 +111,7 @@
     "id": "faq-09",
     "category": "Venue",
     "question": "Where is the Grand Hall?",
-    "answer": "**Grand Hall** is the main plenary space — opening ceremony, keynotes, and closing. Open **Venue map** in the app; signage from Main Lobby points the way.",
+    "answer": "**Grand Hall** is the main plenary space - opening ceremony, keynotes, and closing. Open **Venue map** in the app; signage from Main Lobby points the way.",
     "keywords": [
       "grand hall",
       "plenary",
@@ -137,7 +137,7 @@
     "id": "faq-11",
     "category": "Schedule",
     "question": "What are the official conference dates?",
-    "answer": "**NSE International Conference 2026** runs **30 November – 4 December 2026** at ICC Maiduguri. Full programme in **Schedule**.",
+    "answer": "**NSE International Conference 2026** runs **30 November - 4 December 2026** at ICC Maiduguri. Full programme in **Schedule**.",
     "keywords": [
       "dates",
       "when",
@@ -177,7 +177,7 @@
     "id": "faq-14",
     "category": "Schedule",
     "question": "Are there parallel technical tracks?",
-    "answer": "Yes — **Divisional Technical Sessions** and workshops run in **Hall A**, **Hall B**, and workshop rooms. Filter by track in **Schedule**.",
+    "answer": "Yes - **Divisional Technical Sessions** and workshops run in **Hall A**, **Hall B**, and workshop rooms. Filter by track in **Schedule**.",
     "keywords": [
       "parallel",
       "tracks",
@@ -204,7 +204,7 @@
     "id": "faq-16",
     "category": "Hotels",
     "question": "Which hotels are recommended for delegates?",
-    "answer": "The app lists **partner hotels** with distances and rates — including Amada International, Aiba Sport Resort, and ICC Partner Lodge. Open **Hotels** for booking links.",
+    "answer": "The app lists **partner hotels** with distances and rates - including Amada International, Aiba Sport Resort, and ICC Partner Lodge. Open **Hotels** for booking links.",
     "keywords": [
       "hotel",
       "accommodation",
@@ -217,7 +217,7 @@
     "id": "faq-17",
     "category": "Hotels",
     "question": "Is there a shuttle from hotels to ICC?",
-    "answer": "Delegate shuttles depart ICC **every 30 minutes** (7:30 AM–9:00 PM) for partner hotels on the **Damboa Road** corridor. Confirm your hotel route in **Announcements**.",
+    "answer": "Delegate shuttles depart ICC **every 30 minutes** (7:30 AM-9:00 PM) for partner hotels on the **Damboa Road** corridor. Confirm your hotel route in **Announcements**.",
     "keywords": [
       "shuttle",
       "bus",
@@ -243,7 +243,7 @@
     "id": "faq-19",
     "category": "Hotels",
     "question": "Can I change hotels during the conference?",
-    "answer": "Yes — you are responsible for your own booking changes. Update your profile **Company** field if needed so networking contacts reach you.",
+    "answer": "Yes - you are responsible for your own booking changes. Update your profile **Company** field if needed so networking contacts reach you.",
     "keywords": [
       "change hotel",
       "switch",
@@ -280,7 +280,7 @@
   {
     "id": "faq-22",
     "category": "Wi-Fi & Tech",
-    "question": "Wi-Fi is not connecting — what should I try?",
+    "question": "Wi-Fi is not connecting - what should I try?",
     "answer": "Forget the network and reconnect, ensure you are on **`NSE-Conference-2026`** (not guest networks), and move closer to lobby APs. Ask **Concierge** if issues persist.",
     "keywords": [
       "wifi problem",
@@ -293,7 +293,7 @@
     "id": "faq-23",
     "category": "Wi-Fi & Tech",
     "question": "Can I use mobile data instead of Wi-Fi?",
-    "answer": "Yes — **4G/5G** works in Maiduguri. Wi-Fi is provided for heavy downloads and live streaming inside ICC. Enable notifications in the app for announcements.",
+    "answer": "Yes - **4G/5G** works in Maiduguri. Wi-Fi is provided for heavy downloads and live streaming inside ICC. Enable notifications in the app for announcements.",
     "keywords": [
       "mobile data",
       "4g",
@@ -333,7 +333,7 @@
     "id": "faq-26",
     "category": "Food",
     "question": "Are vegetarian or halal options available?",
-    "answer": "Yes — the conference menu includes **local and continental** options. Ask catering staff at the point of service or note preferences in your food order where available.",
+    "answer": "Yes - the conference menu includes **local and continental** options. Ask catering staff at the point of service or note preferences in your food order where available.",
     "keywords": [
       "vegetarian",
       "halal",
@@ -347,7 +347,7 @@
     "id": "faq-27",
     "category": "Food",
     "question": "What time is breakfast served?",
-    "answer": "Breakfast service typically runs **7:00–9:30 AM** at ICC catering areas. Check daily **Announcements** for any timing changes.",
+    "answer": "Breakfast service typically runs **7:00-9:30 AM** at ICC catering areas. Check daily **Announcements** for any timing changes.",
     "keywords": [
       "breakfast time",
       "morning meal",
@@ -371,7 +371,7 @@
     "id": "faq-29",
     "category": "Networking",
     "question": "Can I hide my profile from the directory?",
-    "answer": "Yes — turn off **Visible in networking directory** in **Profile** → Save. You can still message people you have already connected with.",
+    "answer": "Yes - turn off **Visible in networking directory** in **Profile** → Save. You can still message people you have already connected with.",
     "keywords": [
       "privacy",
       "hide profile",
@@ -396,7 +396,7 @@
     "id": "faq-31",
     "category": "Networking",
     "question": "Is there a Young Engineers Forum?",
-    "answer": "Yes — see **Young Engineers Forum** in **Schedule** (Workshop Room 1, Day 1). A mentorship and career pathways session for early-career engineers.",
+    "answer": "Yes - see **Young Engineers Forum** in **Schedule** (Workshop Room 1, Day 1). A mentorship and career pathways session for early-career engineers.",
     "keywords": [
       "young engineers",
       "youth",
@@ -422,7 +422,7 @@
     "id": "faq-33",
     "category": "Emergency",
     "question": "Where is first aid at ICC?",
-    "answer": "**ICC first aid** station is next to **Hall A** (8 AM–10 PM). Tap **Emergency** in the app for the direct line.",
+    "answer": "**ICC first aid** station is next to **Hall A** (8 AM-10 PM). Tap **Emergency** in the app for the direct line.",
     "keywords": [
       "first aid",
       "medical",
@@ -448,7 +448,7 @@
     "id": "faq-35",
     "category": "Emergency",
     "question": "Who do I contact for venue security?",
-    "answer": "**Venue security** office is inside ICC — see **Emergency** for the direct line. Report lost items and access issues there or via **Concierge**.",
+    "answer": "**Venue security** office is inside ICC - see **Emergency** for the direct line. Report lost items and access issues there or via **Concierge**.",
     "keywords": [
       "security",
       "safe",
@@ -461,7 +461,7 @@
     "id": "faq-36",
     "category": "Entertainment",
     "question": "When is Cultural Night?",
-    "answer": "**Cultural Night** is on **Day 4** in the **Courtyard** — live performances, guest artistes, and a delegate reception. See **Schedule** for times.",
+    "answer": "**Cultural Night** is on **Day 4** in the **Courtyard** - live performances, guest artistes, and a delegate reception. See **Schedule** for times.",
     "keywords": [
       "cultural night",
       "entertainment",
@@ -487,7 +487,7 @@
     "id": "faq-38",
     "category": "Entertainment",
     "question": "What is the conference theme?",
-    "answer": "**Engineering Innovation for Enhanced Security and Sustainable National Development** — led by **Engr. Mohammed Kabir Wanori, FNSE**. More on **About NSE**.",
+    "answer": "**Engineering Innovation for Enhanced Security and Sustainable National Development** - led by **Engr. Mohammed Kabir Wanori, FNSE**. More on **About NSE**.",
     "keywords": [
       "theme",
       "topic",

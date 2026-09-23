@@ -14,7 +14,7 @@
       "capacity": 30,
       "marshalName": "Engr. Musa Ibrahim",
       "marshalPhone": "+2348033102009",
-      "pickupPoint": "ICC main entrance — Bay A"
+      "pickupPoint": "ICC main entrance - Bay A"
     },
     {
       "id": "bus-b",
@@ -24,7 +24,7 @@
       "capacity": 30,
       "marshalName": "Engr. Tanko Gyang",
       "marshalPhone": "+2348038924133",
-      "pickupPoint": "ICC main entrance — Bay B"
+      "pickupPoint": "ICC main entrance - Bay B"
     },
     {
       "id": "bus-c",
@@ -34,7 +34,7 @@
       "capacity": 28,
       "marshalName": "Engr. Ibrahim Dederi",
       "marshalPhone": "+2348068896400",
-      "pickupPoint": "ICC main entrance — Bay C"
+      "pickupPoint": "ICC main entrance - Bay C"
     },
     {
       "id": "bus-d",
@@ -44,7 +44,7 @@
       "capacity": 30,
       "marshalName": "Engr. Raheem Jimoh",
       "marshalPhone": "+2347030509184",
-      "pickupPoint": "ICC main entrance — Bay D"
+      "pickupPoint": "ICC main entrance - Bay D"
     },
     {
       "id": "bus-e",
@@ -54,7 +54,7 @@
       "capacity": 25,
       "marshalName": "Engr. Magdalene Demesi",
       "marshalPhone": "+2348097400003",
-      "pickupPoint": "ICC main entrance — Bay E"
+      "pickupPoint": "ICC main entrance - Bay E"
     },
     {
       "id": "bus-f",
@@ -64,7 +64,7 @@
       "capacity": 30,
       "marshalName": "Engr. Ezekwesili Onah",
       "marshalPhone": "+2348164665927",
-      "pickupPoint": "ICC main entrance — Bay F"
+      "pickupPoint": "ICC main entrance - Bay F"
     },
     {
       "id": "bus-g",
@@ -74,7 +74,7 @@
       "capacity": 30,
       "marshalName": "Engr. Sharafadeen Olumoh",
       "marshalPhone": "+2349132306750",
-      "pickupPoint": "ICC main entrance — Bay G"
+      "pickupPoint": "ICC main entrance - Bay G"
     },
     {
       "id": "bus-h",
@@ -84,7 +84,7 @@
       "capacity": 28,
       "marshalName": "Engr. Vandeyon Tertsea",
       "marshalPhone": "+2348167261763",
-      "pickupPoint": "ICC main entrance — Bay H"
+      "pickupPoint": "ICC main entrance - Bay H"
     },
     {
       "id": "bus-i",
@@ -94,7 +94,7 @@
       "capacity": 30,
       "marshalName": "Engr. CP Kachi",
       "marshalPhone": "+2347033102009",
-      "pickupPoint": "ICC main entrance — Bay I"
+      "pickupPoint": "ICC main entrance - Bay I"
     },
     {
       "id": "bus-j",
@@ -104,7 +104,7 @@
       "capacity": 30,
       "marshalName": "Engr. Ademola Agoro",
       "marshalPhone": "+2348065119443",
-      "pickupPoint": "ICC main entrance — Bay J"
+      "pickupPoint": "ICC main entrance - Bay J"
     }
   ],
   "scheduleTemplate": [

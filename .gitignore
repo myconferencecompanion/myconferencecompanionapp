@@ -66,3 +66,6 @@ build_output.txt
 *.docx
 !README.docx
 tools/
+
+# Vercel local build output
+.vercel/

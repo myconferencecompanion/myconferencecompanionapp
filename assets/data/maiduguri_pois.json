@@ -6,7 +6,7 @@
     "longitude": 13.15,
     "image": "/venues/icc-maiduguri.jpg"
   },
-  "shuttle": "Delegate shuttle buses depart ICC main entrance every 30 minutes (7:30 AM–9:00 PM) for partner hotels on the Damboa Road corridor.",
+  "shuttle": "Delegate shuttle buses depart ICC main entrance every 30 minutes (7:30 AM-9:00 PM) for partner hotels on the Damboa Road corridor.",
   "parking": "On-site parking at ICC with security. Follow marshals at the main gate. VIP drop-off at the lobby canopy.",
   "directions": [
     "From Maiduguri Airport: ~45 min via Airport Road → Baga Road → ICC.",
@@ -27,7 +27,7 @@
     },
     {
       "id": "police-hq",
-      "name": "Nigeria Police — Borno State Command HQ",
+      "name": "Nigeria Police - Borno State Command HQ",
       "category": "Security",
       "distance": "1.2 km",
       "distanceKm": 1.2,
@@ -74,7 +74,7 @@
     },
     {
       "id": "maimalari-cantonment",
-      "name": "7 Division Nigerian Army — Maimalari Cantonment",
+      "name": "7 Division Nigerian Army - Maimalari Cantonment",
       "category": "Security",
       "distance": "3.2 km",
       "distanceKm": 3.2,
@@ -190,7 +190,7 @@
       "distanceKm": 6.8,
       "latitude": 11.8344,
       "longitude": 13.0877,
-      "note": "State hospital · Kano–Maiduguri Highway, near Airport Road",
+      "note": "State hospital · Kano-Maiduguri Highway, near Airport Road",
       "query": "Umaru Shehu Hospital Maiduguri"
     },
     {
