@@ -13,6 +13,9 @@ fs.mkdirSync(outDir, { recursive: true });
 const jobs = [
   ["assets/data/hotels.json", "hotels.json"],
   ["assets/data/maiduguri_pois.json", "venue.json"],
+  ["assets/data/conference_info.json", "conference-info.json"],
+  ["assets/data/faqs.json", "faqs.json"],
+  ["assets/data/transport.json", "transport.json"],
 ];
 
 for (const [src, dest] of jobs) {

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
-import { MapPin, Hotel, Coffee, Navigation } from "lucide-react";
+import { MapPin, Hotel, Coffee, Navigation, Bus, HelpCircle } from "lucide-react";
 import { EVENT_CONFIG } from "@/lib/event-config";
 
 export const Route = createFileRoute("/_authenticated/maidguide")({
@@ -34,6 +34,20 @@ const tiles = [
     label: "Nearby Places",
     description: "Security, hospitals, government offices & more.",
     icon: Coffee,
+    tone: "bg-accent-soft text-warning-foreground",
+  },
+  {
+    to: "/transport",
+    label: "Shuttle Transport",
+    description: "10 delegate buses, marshals and daily schedule.",
+    icon: Bus,
+    tone: "bg-primary-soft text-primary",
+  },
+  {
+    to: "/faq",
+    label: "Conference Guide",
+    description: "40 searchable answers — wifi, badges, meals…",
+    icon: HelpCircle,
     tone: "bg-accent-soft text-warning-foreground",
   },
 ] as const;

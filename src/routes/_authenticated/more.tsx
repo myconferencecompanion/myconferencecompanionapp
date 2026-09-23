@@ -16,6 +16,9 @@ import {
   Settings,
   MessageCircle,
   KeyRound,
+  Bus,
+  HelpCircle,
+  Info,
 } from "lucide-react";
 import { EVENT_CONFIG } from "@/lib/event-config";
 import { toast } from "sonner";
@@ -28,6 +31,9 @@ const items = [
   { to: "/network", label: "Networking", icon: MessageCircle },
   { to: "/announcements", label: "Announcements", icon: Megaphone },
   { to: "/emergency", label: "Emergency", icon: ShieldAlert },
+  { to: "/transport", label: "Transport", icon: Bus },
+  { to: "/faq", label: "Conference Guide (FAQ)", icon: HelpCircle },
+  { to: "/about", label: "About NSE", icon: Info },
   { to: "/profile", label: "Edit profile", icon: User },
 ] as const;
 

@@ -3,6 +3,9 @@
 // these become the fallback layer.
 import hotelsJson from "@/data/hotels.json";
 import venueJson from "@/data/venue.json";
+import conferenceInfoJson from "@/data/conference-info.json";
+import faqsJson from "@/data/faqs.json";
+import transportJson from "@/data/transport.json";
 
 export interface HotelRoom {
   label: string;
@@ -53,6 +56,75 @@ export interface VenueData {
 
 export const HOTELS = hotelsJson as Hotel[];
 export const VENUE_DATA = venueJson as VenueData;
+
+export interface ConferenceInfo {
+  organizationName: string;
+  conferenceTitle: string;
+  theme: string;
+  dates: string;
+  venue: string;
+  chairman: string;
+  logoUrl: string;
+  officialSite: string;
+  stats: { label: string; value: string }[];
+  entertainment: { title: string; chair: string; focus: string };
+  spouses: { title: string; venue: string; focus: string };
+}
+
+export interface FaqItem {
+  id: string;
+  category: string;
+  question: string;
+  answer: string;
+  keywords: string[];
+}
+
+export interface Bus {
+  id: string;
+  name: string;
+  hotelId: string;
+  routeLabel: string;
+  capacity: number;
+  marshalName: string;
+  marshalPhone: string;
+  pickupPoint: string;
+}
+
+export interface TransportData {
+  defaultPolicy: "fixed_assignment" | "open_boarding" | "hybrid";
+  policyDescriptions: Record<string, string>;
+  buses: Bus[];
+  scheduleTemplate: { label: string; direction: "to_venue" | "to_hotel"; time: string }[];
+}
+
+export const CONFERENCE_INFO = conferenceInfoJson as ConferenceInfo;
+export const FAQS = faqsJson as FaqItem[];
+export const TRANSPORT = transportJson as TransportData;
+
+/** Search FAQs the same way the Flutter app does: question + answer + keywords. */
+export function searchFaqs(query: string): FaqItem[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return FAQS;
+  const words = q.split(/\s+/);
+  return FAQS.map((f) => {
+    const haystack = `${f.question} ${f.answer} ${f.keywords.join(" ")}`.toLowerCase();
+    const score = words.reduce((n, w) => n + (haystack.includes(w) ? 1 : 0), 0);
+    return { faq: f, score };
+  })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((r) => r.faq);
+}
+
+export function faqsByCategory(): Map<string, FaqItem[]> {
+  const map = new Map<string, FaqItem[]>();
+  for (const f of FAQS) {
+    const list = map.get(f.category) ?? [];
+    list.push(f);
+    map.set(f.category, list);
+  }
+  return map;
+}
 
 /** Minimum numeric nightly rate across a hotel's room list, in naira. */
 export function hotelMinRate(hotel: Hotel): number | null {

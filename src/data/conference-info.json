@@ -1,0 +1,38 @@
+{
+  "organizationName": "The Nigerian Society of Engineers",
+  "conferenceTitle": "NSE International Conference 2026",
+  "theme": "Engineering Innovation for Enhanced Security and Sustainable National Development",
+  "dates": "Monday, 30 November – Friday, 4 December 2026",
+  "venue": "International Conference Centre, Maiduguri, Borno State, Nigeria",
+  "chairman": "Engr. Mohammed Kabir Wanori, FNSE",
+  "logoUrl": "https://nse.org.ng/wp-content/uploads/2021/09/NSEHeaderReal.png",
+  "officialSite": "https://nse.org.ng/",
+  "stats": [
+    {
+      "label": "Branches",
+      "value": "93+"
+    },
+    {
+      "label": "Divisions",
+      "value": "25"
+    },
+    {
+      "label": "Members",
+      "value": "90,000+"
+    },
+    {
+      "label": "Excellence",
+      "value": "66+ yrs"
+    }
+  ],
+  "entertainment": {
+    "title": "Entertainment Sub-Committee",
+    "chair": "Engr. Demesi Magdalene",
+    "focus": "Cultural performances, live band, guest artistes, Cultural Night, and delegate feeding."
+  },
+  "spouses": {
+    "title": "Spouses Sub-Committee",
+    "venue": "University of Maiduguri",
+    "focus": "Visitations, social and cultural engagements, and Borno cultural experience for spouses."
+  }
+}
