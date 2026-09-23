@@ -339,6 +339,16 @@ class DirectionsScreen extends StatelessWidget {
 class NearbyScreen extends StatelessWidget {
   const NearbyScreen({super.key});
 
+  static const _groupOrder = <String, List<String>>{
+    'Airport & transport': ['Airport'],
+    'Security & emergency': ['Security'],
+    'Government & liaison': ['Government'],
+    'Hospitals': ['Hospital'],
+    'Culture & heritage': ['Culture'],
+    'Food & essentials': ['Restaurant', 'Pharmacy', 'ATM', 'Shopping'],
+    'Programme visits': ['Spouses visit'],
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -358,89 +368,161 @@ class NearbyScreen extends StatelessWidget {
           final vLng = (venue['longitude'] as num?)?.toDouble() ?? 13.15;
           final places = (pois['nearby'] as List).cast<Map<String, dynamic>>();
 
+          final groups = <String, List<Map<String, dynamic>>>{};
+          for (final p in places) {
+            final cat = p['category'] as String? ?? '';
+            final group = _groupOrder.entries
+                .firstWhere(
+                  (g) => g.value.contains(cat),
+                  orElse: () => const MapEntry('Other', <String>[]),
+                )
+                .key;
+            (groups[group] ??= []).add(p);
+          }
+
+          Widget groupCards(List<Map<String, dynamic>> items) => Column(
+                children: items
+                    .map(
+                      (p) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _NearbyCard(place: p, venueLat: vLat, venueLng: vLng),
+                      ),
+                    )
+                    .toList(),
+              );
+
           return ListView(
             padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 40),
             children: [
               const NseTitleHeader(
                 title: 'Nearby',
-                subtitle: 'Distances from ICC Maiduguri · tap for directions.',
+                subtitle: 'Maiduguri, Borno State · distances from ICC · tap for directions.',
                 padding: EdgeInsets.only(bottom: AppSpacing.md),
               ),
-              ...places.map((p) {
-                final lat = (p['latitude'] as num?)?.toDouble();
-                final lng = (p['longitude'] as num?)?.toDouble();
-                final listedKm = (p['distanceKm'] as num?)?.toDouble();
-                final computedKm = lat != null && lng != null
-                    ? haversineKm(vLat, vLng, lat, lng)
-                    : listedKm;
-                final distanceLabel = computedKm != null
-                    ? formatDistanceKm(computedKm)
-                    : (p['distance'] as String? ?? '');
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: NseCard(
-                    padding: EdgeInsets.zero,
-                    onTap: () {
-                      final q = Uri.encodeComponent(p['query'] as String);
-                      launchUrl(
-                        Uri.parse('https://www.google.com/maps/search/?api=1&query=$q'),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (p['image'] != null)
-                          ClipRRect(
-                            borderRadius: const BorderRadius.horizontal(
-                              left: Radius.circular(AppSpacing.radius),
-                            ),
-                            child: CachedNetworkImage(
-                              imageUrl: p['image'] as String,
-                              width: 96,
-                              height: 96,
-                              fit: BoxFit.cover,
-                              errorWidget: (_, _, _) => Container(
-                                width: 96,
-                                height: 96,
-                                color: AppColors.navySoft,
-                                child: const Icon(Icons.place_rounded),
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(sanitizeDisplay(p['name'] as String?), style: Theme.of(context).textTheme.titleSmall),
-                                Text(sanitizeDisplay(p['note'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    NseStatusChip(label: sanitizeDisplay(p['category'] as String?), tone: AppColors.navySoft),
-                                    const SizedBox(width: 8),
-                                    Icon(Icons.straighten_rounded, size: 14, color: Theme.of(context).hintColor),
-                                    const SizedBox(width: 4),
-                                    Text(distanceLabel, style: Theme.of(context).textTheme.labelSmall),
-                                    const Text(' from ICC', style: TextStyle(fontSize: 11)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+              for (final group in _groupOrder.keys)
+                if (groups.containsKey(group)) ...[
+                  NseSectionTitle(title: group),
+                  groupCards(groups[group]!),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+              if (groups.containsKey('Other')) ...[
+                const NseSectionTitle(title: 'Other'),
+                groupCards(groups['Other']!),
+              ],
             ],
           );
         },
       ),
     );
   }
+}
+
+class _NearbyCard extends StatelessWidget {
+  const _NearbyCard({required this.place, required this.venueLat, required this.venueLng});
+
+  final Map<String, dynamic> place;
+  final double venueLat;
+  final double venueLng;
+
+  @override
+  Widget build(BuildContext context) {
+    final lat = (place['latitude'] as num?)?.toDouble();
+    final lng = (place['longitude'] as num?)?.toDouble();
+    final km = lat != null && lng != null ? haversineKm(venueLat, venueLng, lat, lng) : null;
+    final category = sanitizeDisplay(place['category'] as String?);
+
+    return NseCard(
+      padding: EdgeInsets.zero,
+      onTap: () {
+        final q = Uri.encodeComponent(
+          (place['query'] as String?) ?? (place['name'] as String?) ?? '',
+        );
+        launchUrl(
+          Uri.parse('https://www.google.com/maps/search/?api=1&query=$q'),
+          mode: LaunchMode.externalApplication,
+        );
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (place['image'] != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(AppSpacing.radius),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: place['image'] as String,
+                width: 96,
+                height: 96,
+                fit: BoxFit.cover,
+                errorWidget: (_, _, _) => _categoryAvatar(category),
+              ),
+            )
+          else
+            _categoryAvatar(category),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(sanitizeDisplay(place['name'] as String?), style: Theme.of(context).textTheme.titleSmall),
+                  Text(sanitizeDisplay(place['note'] as String? ?? ''), style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      NseStatusChip(label: category, tone: _categoryTone(category)),
+                      const SizedBox(width: 8),
+                      Icon(Icons.straighten_rounded, size: 14, color: Theme.of(context).hintColor),
+                      const SizedBox(width: 4),
+                      Text(km != null ? formatDistanceKm(km) : '—', style: Theme.of(context).textTheme.labelSmall),
+                      const Text(' from ICC', style: TextStyle(fontSize: 11)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _categoryAvatar(String category) {
+    return Container(
+      width: 96,
+      height: 96,
+      color: _categoryTone(category),
+      alignment: Alignment.center,
+      child: Icon(_categoryIcon(category), size: 32, color: _categoryInk(category)),
+    );
+  }
+
+  IconData _categoryIcon(String category) => switch (category) {
+        'Airport' => Icons.flight_land_rounded,
+        'Security' => Icons.local_police_rounded,
+        'Government' => Icons.account_balance_rounded,
+        'Hospital' => Icons.local_hospital_rounded,
+        'Culture' => Icons.museum_rounded,
+        'Restaurant' => Icons.restaurant_rounded,
+        'Pharmacy' => Icons.medication_rounded,
+        'ATM' => Icons.payments_rounded,
+        'Shopping' => Icons.shopping_bag_rounded,
+        'Spouses visit' => Icons.tour_rounded,
+        _ => Icons.place_rounded,
+      };
+
+  Color _categoryTone(String category) => switch (category) {
+        'Hospital' => AppColors.destructiveSoft,
+        'Government' || 'Pharmacy' => AppColors.greenSoft,
+        'Culture' || 'Restaurant' || 'Shopping' || 'Spouses visit' => AppColors.goldSoft,
+        _ => AppColors.navySoft,
+      };
+
+  Color _categoryInk(String category) => switch (category) {
+        'Hospital' => AppColors.destructive,
+        'Government' || 'Pharmacy' => AppColors.green,
+        'Culture' || 'Restaurant' || 'Shopping' || 'Spouses visit' => AppColors.gold,
+        _ => AppColors.navy,
+      };
 }

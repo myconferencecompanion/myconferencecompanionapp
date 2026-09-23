@@ -105,7 +105,7 @@ function Draw-PhoneMock($iconPath, $label, $outPath) {
   $g.DrawImage($icon, $ix, $iy, $iconSize, $iconSize)
   $font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Regular)
   $g.DrawString($label, $font, [System.Drawing.Brushes]::DimGray, $ix, $iy + $iconSize + 8)
-  $g.DrawString("NSE Mobile", $font, [System.Drawing.Brushes]::Gray, $ix + $iconSize + 20, $iy + 36)
+  $g.DrawString("Conference Companion", $font, [System.Drawing.Brushes]::Gray, $ix + $iconSize + 20, $iy + 36)
   Save-Png $mock $outPath
   $g.Dispose(); $mock.Dispose(); $icon.Dispose()
 }
@@ -155,7 +155,7 @@ $sg = [System.Drawing.Graphics]::FromImage($sheet)
 $sg.Clear([System.Drawing.Color]::White)
 $titleFont = New-Object System.Drawing.Font("Segoe UI", 22, [System.Drawing.FontStyle]::Bold)
 $subFont = New-Object System.Drawing.Font("Segoe UI", 12)
-$sg.DrawString("NSE Mobile - App icon previews (not applied yet)", $titleFont, [System.Drawing.Brushes]::Black, 24, 20)
+$sg.DrawString("Conference Companion - App icon previews (not applied yet)", $titleFont, [System.Drawing.Brushes]::Black, 24, 20)
 $sg.DrawString("Pick A, C, or D. Option B is the Android adaptive foreground (transparent).", $subFont, [System.Drawing.Brushes]::DimGray, 24, 56)
 
 $labels = @("CURRENT (bad)", "A navy", "B foreground", "C padded", "D gold ring")

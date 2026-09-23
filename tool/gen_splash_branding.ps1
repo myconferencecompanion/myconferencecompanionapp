@@ -22,7 +22,7 @@ $subFont = New-Object System.Drawing.Font("Segoe UI", 19, [System.Drawing.FontSt
 $fmt = New-Object System.Drawing.StringFormat
 $fmt.Alignment = [System.Drawing.StringAlignment]::Center
 
-$g.DrawString("NSE '26", $titleFont, $navyBrush, ($w / 2), 34, $fmt)
+$g.DrawString("Conference Companion", $titleFont, $navyBrush, ($w / 2), 34, $fmt)
 $g.DrawString("International Conference  -  Maiduguri 2026", $subFont, $mutedBrush, ($w / 2), 104, $fmt)
 
 $g.Dispose()

@@ -3,7 +3,9 @@ class EventConfig {
 
   static const name = 'NSE International Conference';
   static const year = '2026';
-  static const shortName = "NSE '26";
+
+  /// The app's display brand (launcher title, material title, wordmark).
+  static const shortName = 'Conference Companion';
   static const tagline =
       'Engineering Innovation for Enhanced Security and Sustainable National Development';
   static const dates = '30 November – 4 December 2026';

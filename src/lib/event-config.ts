@@ -2,7 +2,8 @@
 export const EVENT_CONFIG = {
   name: "NSE Conference",
   year: "2026",
-  shortName: "NSE '26",
+  // The app's display brand (header title, AI concierge subtitle).
+  shortName: "Conference Companion",
   tagline: "Nigerian Society of Engineers Annual Conference",
   dates: "November 16–20, 2026",
   venue: {

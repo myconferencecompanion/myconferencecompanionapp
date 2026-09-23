@@ -46,7 +46,7 @@ $soft = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(2
 $sf = New-Object System.Drawing.StringFormat
 $sf.Alignment = [System.Drawing.StringAlignment]::Center
 $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
-$bg.DrawString("NSE '26", $titleFont, $white, (New-Object System.Drawing.RectangleF 0, 18, $bw, 70), $sf)
+$bg.DrawString("Conference Companion", $titleFont, $white, (New-Object System.Drawing.RectangleF 0, 18, $bw, 70), $sf)
 $bg.DrawString('International Conference - Maiduguri 2026', $subFont, $soft, (New-Object System.Drawing.RectangleF 0, 88, $bw, 50), $sf)
 Save-Png $brand (Join-Path $root 'splash_branding.png')
 $bg.Dispose()

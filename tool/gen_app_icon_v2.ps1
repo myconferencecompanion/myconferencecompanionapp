@@ -126,7 +126,7 @@ $sg = [System.Drawing.Graphics]::FromImage($sheet)
 $sg.Clear([System.Drawing.Color]::White)
 $titleFont = New-Object System.Drawing.Font("Segoe UI", 22, [System.Drawing.FontStyle]::Bold)
 $subFont = New-Object System.Drawing.Font("Segoe UI", 12)
-$sg.DrawString("NSE Mobile - NEW icon previews (v2)", $titleFont, [System.Drawing.Brushes]::Black, 24, 18)
+$sg.DrawString("Conference Companion - NEW icon previews (v2)", $titleFont, [System.Drawing.Brushes]::Black, 24, 18)
 $sg.DrawString("A/C/D failed: crest source is only 100px tall. E = crisp type. F = simplified mark.", $subFont, [System.Drawing.Brushes]::DimGray, 24, 54)
 
 $labels = @("OLD crest upscale", "NEW E typography", "NEW F mark", "CURRENT device")

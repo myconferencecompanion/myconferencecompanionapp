@@ -1,4 +1,4 @@
-# NSE Mobile
+# Conference Companion
 
 Flutter app (iOS + Android) for **NSE International Conference 2026** — Maiduguri, Borno State.
 
@@ -18,7 +18,7 @@ Supabase credentials: root `.env` (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`).
 | **Core** | Auth, Home, Activity (waitlist), More |
 | **Programme** | Schedule, Session detail, Speakers |
 | **Venue** | Maidguide, Map (ICC + outdoor), Directions, Nearby |
-| **Hotels** | 26 delegate hotels (bundled from NSE reference) + Supabase |
+| **Hotels** | 47 delegate hotels (bundled from the official masterlist) + Supabase |
 | **Concierge** | Usher, Food, Errands, My orders |
 | **Social** | Chat rooms, Delegate directory, DMs |
 | **Safety** | Announcements, Emergency contacts |

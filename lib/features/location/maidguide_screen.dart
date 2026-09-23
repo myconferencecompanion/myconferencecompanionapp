@@ -12,7 +12,7 @@ class MaidguideScreen extends StatelessWidget {
       (Icons.map_rounded, 'Venue map', 'Indoor ICC layout & outdoor view', '/map', AppColors.navySoft, AppColors.navy),
       (Icons.directions_rounded, 'Directions', 'Get to the conference centre', '/directions', AppColors.greenSoft, AppColors.green),
       (Icons.hotel_rounded, 'Hotels', 'Delegate accommodation', '/accommodation', AppColors.goldSoft, AppColors.gold),
-      (Icons.place_rounded, 'Nearby', 'Food, pharmacy, ATM & more', '/nearby', AppColors.navySoft, AppColors.navy),
+      (Icons.place_rounded, 'Nearby', 'Airport, security, hospitals & more', '/nearby', AppColors.navySoft, AppColors.navy),
       (Icons.info_rounded, 'About NSE', 'Conference identity & context', '/about', AppColors.greenSoft, AppColors.green),
     ];
 

@@ -84,7 +84,7 @@ $im = [System.Drawing.Image]::FromFile((Join-Path $previewDir "user_logo_navy_10
 $mg.DrawImage($im, 24, 52, 96, 96)
 $font = New-Object System.Drawing.Font("Segoe UI", 11)
 $mg.DrawString("Your crest on navy", $font, [System.Drawing.Brushes]::DimGray, 24, 154)
-$mg.DrawString("NSE Mobile", $font, [System.Drawing.Brushes]::Gray, 140, 88)
+$mg.DrawString("Conference Companion", $font, [System.Drawing.Brushes]::Gray, 140, 88)
 Save-Png $mock (Join-Path $previewDir "mock_user_logo.png")
 $mg.Dispose(); $mock.Dispose(); $im.Dispose(); $font.Dispose()
 
