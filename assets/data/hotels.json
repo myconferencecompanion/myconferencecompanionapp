@@ -287,7 +287,9 @@
                 "thumb": "/hotels/golden-sand/thumb/027.webp"
             }
         ],
-        "photoCount": 27
+        "photoCount": 27,
+        "latitude": 11.80963,
+        "longitude": 13.13686
     },
     {
         "id": "grand-polo",
@@ -398,7 +400,9 @@
                 "thumb": "/hotels/grand-polo/thumb/017.webp"
             }
         ],
-        "photoCount": 17
+        "photoCount": 17,
+        "latitude": 11.80493,
+        "longitude": 13.14862
     },
     {
         "id": "grand-pinnacle",
@@ -452,7 +456,9 @@
                 "thumb": "/hotels/grand-pinnacle/thumb/004.webp"
             }
         ],
-        "photoCount": 4
+        "photoCount": 4,
+        "latitude": 11.8403,
+        "longitude": 13.09494
     },
     {
         "id": "city-star",
@@ -686,7 +692,9 @@
                 "thumb": "/hotels/amada/thumb/012.webp"
             }
         ],
-        "photoCount": 12
+        "photoCount": 12,
+        "latitude": 11.81363,
+        "longitude": 13.15043
     },
     {
         "id": "borno-state-hotel",
@@ -761,7 +769,9 @@
                 "thumb": "/hotels/borno-state-hotel/thumb/007.webp"
             }
         ],
-        "photoCount": 7
+        "photoCount": 7,
+        "latitude": 11.81748,
+        "longitude": 13.15082
     },
     {
         "id": "kelrich-hotel",
@@ -1000,7 +1010,9 @@
                 "thumb": "/hotels/nanne-and-boi/thumb/005.webp"
             }
         ],
-        "photoCount": 5
+        "photoCount": 5,
+        "latitude": 11.80762,
+        "longitude": 13.15555
     },
     {
         "id": "aiba-sport-resort",
@@ -1581,7 +1593,9 @@
                 "thumb": "/hotels/garki-guest/thumb/028.webp"
             }
         ],
-        "photoCount": 28
+        "photoCount": 28,
+        "latitude": 11.8444,
+        "longitude": 13.09588
     },
     {
         "id": "khanan-hotel",
@@ -1769,7 +1783,9 @@
                 "thumb": "/hotels/muna/thumb/003.webp"
             }
         ],
-        "photoCount": 3
+        "photoCount": 3,
+        "latitude": 11.81322,
+        "longitude": 13.15169
     },
     {
         "id": "command-guest-inn",
@@ -2024,7 +2040,9 @@
                 "thumb": "/hotels/unimaid-guest-inn/thumb/002.webp"
             }
         ],
-        "photoCount": 2
+        "photoCount": 2,
+        "latitude": 11.80752,
+        "longitude": 13.19229
     },
     {
         "id": "yerwa-guest-inn",
@@ -2706,33 +2724,6 @@
             },
             {
                 "label": "Executive",
-                "rate": "N15,000"
-            }
-        ],
-        "images": [],
-        "photoCount": 0
-    },
-    {
-        "id": "borno-hotel-2",
-        "rank": 47,
-        "qualityTier": "value",
-        "name": "Unnamed Property (S/N 47)",
-        "shortName": "S/N 47",
-        "tone": "Rates listed, identity pending",
-        "location": "Maiduguri, Borno State",
-        "distanceToVenue": "Distance pending official logistics confirmation",
-        "contactPhone": null,
-        "description": "Final row of the masterlist with rates (single N10,500 / standard N15,000) but no legible hotel name or address in the PDF; verify against the source spreadsheet. Data from the official Maiduguri hotels masterlist (Sheet1 (4), 23 Sep 2026).",
-        "roomSummary": "Categories priced",
-        "rateStatus": "Rates listed",
-        "highlights": [],
-        "rooms": [
-            {
-                "label": "Single",
-                "rate": "N10,500"
-            },
-            {
-                "label": "Standard",
                 "rate": "N15,000"
             }
         ],

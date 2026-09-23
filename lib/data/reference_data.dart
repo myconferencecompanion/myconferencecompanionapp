@@ -32,6 +32,8 @@ class ReferenceHotel {
     required this.rooms,
     required this.images,
     required this.photoCount,
+    this.latitude,
+    this.longitude,
   });
 
   final String id;
@@ -50,12 +52,37 @@ class ReferenceHotel {
   final List<Map<String, String>> rooms;
   final List<HotelImage> images;
   final int photoCount;
+  final double? latitude;
+  final double? longitude;
 
   String get tierLabel => switch (qualityTier) {
         'premier' => 'Premier',
         'value' => 'Value',
         _ => 'Standard',
       };
+
+  /// Straight-line distance to the ICC venue in km, when the sheet lists it.
+  double? get distanceKm {
+    final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(distanceToVenue);
+    if (m == null) return null;
+    return double.tryParse(m.group(1)!);
+  }
+
+  /// Cheapest nightly rate parsed from the room tariff (in naira), null if none.
+  int? get minRate {
+    int? best;
+    for (final r in rooms) {
+      final matches = RegExp(r'N\s?([\d,]+)').allMatches(r['rate'] ?? '');
+      for (final m in matches) {
+        final v = int.tryParse(m.group(1)!.replaceAll(',', ''));
+        if (v != null && (best == null || v < best)) best = v;
+      }
+    }
+    return best;
+  }
+
+  /// First numeric rate across the tariff — used for range filtering.
+  bool get hasRates => minRate != null;
 
   factory ReferenceHotel.fromJson(Map<String, dynamic> json) {
     final images = (json['images'] as List? ?? [])
@@ -86,6 +113,8 @@ class ReferenceHotel {
           .toList(),
       images: images,
       photoCount: json['photoCount'] as int? ?? images.length,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
   }
 }
@@ -139,6 +168,9 @@ class ConferenceInfo {
 class ReferenceData {
   static List<ReferenceHotel>? _hotels;
   static ConferenceInfo? _info;
+
+  /// Last loaded hotels list — lets the map tab read hotels synchronously.
+  static List<ReferenceHotel>? get cachedHotels => _hotels;
 
   static Future<List<ReferenceHotel>> hotels() async {
     _hotels ??= await _loadHotels();

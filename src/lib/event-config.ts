@@ -4,11 +4,11 @@ export const EVENT_CONFIG = {
   year: "2026",
   // The app's display brand (header title, AI concierge subtitle).
   shortName: "Conference Companion",
-  tagline: "Nigerian Society of Engineers Annual Conference",
-  dates: "November 16–20, 2026",
+  tagline: "Engineering Innovation for Enhanced Security and Sustainable National Development",
+  dates: "30 November – 4 December 2026",
   venue: {
-    name: "Multi-Purpose Indoor Sports Hall",
-    address: "Ramat Square, Maiduguri, Borno State, Nigeria",
+    name: "International Conference Centre",
+    address: "Maiduguri, Borno State, Nigeria",
     latitude: 11.8333,
     longitude: 13.1500,
   },

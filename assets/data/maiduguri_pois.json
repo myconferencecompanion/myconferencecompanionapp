@@ -34,7 +34,8 @@
       "latitude": 11.835,
       "longitude": 13.161,
       "note": "State Command headquarters · emergency response",
-      "query": "Borno State Police Command Headquarters Maiduguri"
+      "query": "Borno State Police Command Headquarters Maiduguri",
+      "phone": "08068075581"
     },
     {
       "id": "dss-hq",
@@ -56,7 +57,8 @@
       "latitude": 11.843,
       "longitude": 13.1493,
       "note": "City centre division · Post Office area",
-      "query": "Dandal Police Station Maiduguri"
+      "query": "Dandal Police Station Maiduguri",
+      "phone": "08108637500"
     },
     {
       "id": "metro-police",
@@ -67,7 +69,8 @@
       "latitude": 11.833,
       "longitude": 13.173,
       "note": "Maiduguri Metropolitan (Metro) division",
-      "query": "Metro Police Station Maiduguri"
+      "query": "Metro Police Station Maiduguri",
+      "phone": "09129340466"
     },
     {
       "id": "maimalari-cantonment",
@@ -151,7 +154,7 @@
       "name": "Shehu of Borno's Palace",
       "category": "Culture",
       "distance": "2.0 km",
-      "distanceKm": 2.0,
+      "distanceKm": 2,
       "latitude": 11.8481,
       "longitude": 13.1604,
       "note": "Royal palace of the Shehu of Borno · Kashim Ibrahim Road",
@@ -162,7 +165,7 @@
       "name": "Borno State Museum",
       "category": "Culture",
       "distance": "2.0 km",
-      "distanceKm": 2.0,
+      "distanceKm": 2,
       "latitude": 11.8477,
       "longitude": 13.16,
       "note": "Museum & archives within the Shehu's palace grounds",
@@ -217,7 +220,7 @@
       "name": "Eye & Dental Hospital",
       "category": "Hospital",
       "distance": "1.0 km",
-      "distanceKm": 1.0,
+      "distanceKm": 1,
       "latitude": 11.8262,
       "longitude": 13.144,
       "note": "Specialist eye & dental care · Damboa Road",
@@ -276,7 +279,7 @@
       "name": "University of Maiduguri",
       "category": "Spouses visit",
       "distance": "4 km",
-      "distanceKm": 4.0,
+      "distanceKm": 4,
       "latitude": 11.808,
       "longitude": 13.185,
       "note": "Spouses programme cultural visit",

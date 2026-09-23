@@ -31,17 +31,17 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-      # Skip tests for now - they require .env configuration
-      # - name: Test
-      #   run: flutter test
+      - name: Test
+        run: flutter test
 
-      - name: Build (APK release)
-        run: flutter build apk --release
+      # Split per ABI: arm64 APK is ~1/3 the size of the fat APK.
+      - name: Build (APK release, split per ABI)
+        run: flutter build apk --release --split-per-abi
 
-      - name: Upload APK
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: nse-mobile-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: conference-companion-release-apks
+          path: build/app/outputs/flutter-apk/*release*.apk
           retention-days: 30
 

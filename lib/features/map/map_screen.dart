@@ -110,21 +110,53 @@ class _OutdoorMap extends StatelessWidget {
     final vLat = (venue['latitude'] as num?)?.toDouble() ?? EventConfig.venueLatitude;
     final vLng = (venue['longitude'] as num?)?.toDouble() ?? EventConfig.venueLongitude;
 
+    final markers = <Marker>{
+      Marker(
+        markerId: const MarkerId('venue'),
+        position: LatLng(vLat, vLng),
+        infoWindow: InfoWindow(
+          title: sanitizeDisplay(EventConfig.venueName),
+          snippet: sanitizeDisplay(EventConfig.venueAddress),
+        ),
+      ),
+    };
+
+    // Nearby POIs (grouped by category) with colored hues.
+    final places = (pois?['nearby'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+    for (final p in places) {
+      final lat = (p['latitude'] as num?)?.toDouble();
+      final lng = (p['longitude'] as num?)?.toDouble();
+      if (lat == null || lng == null) continue;
+      final category = p['category'] as String? ?? '';
+      markers.add(Marker(
+        markerId: MarkerId('poi-${p['id'] ?? p['name']}'),
+        position: LatLng(lat, lng),
+        infoWindow: InfoWindow(
+          title: sanitizeDisplay(p['name'] as String?),
+          snippet: category,
+        ),
+      ));
+    }
+
+    // Geocoded hotels from the masterlist.
+    for (final h in ReferenceData.cachedHotels ?? const <ReferenceHotel>[]) {
+      if (h.latitude == null || h.longitude == null) continue;
+      markers.add(Marker(
+        markerId: MarkerId('hotel-${h.id}'),
+        position: LatLng(h.latitude!, h.longitude!),
+        infoWindow: InfoWindow(
+          title: sanitizeDisplay(h.name),
+          snippet: 'Delegate hotel · ${h.tierLabel}',
+        ),
+      ));
+    }
+
     return Column(
       children: [
         Expanded(
           child: GoogleMap(
-            initialCameraPosition: CameraPosition(target: LatLng(vLat, vLng), zoom: 14),
-            markers: {
-              Marker(
-                markerId: const MarkerId('venue'),
-                position: LatLng(vLat, vLng),
-                infoWindow: InfoWindow(
-                  title: sanitizeDisplay(EventConfig.venueName),
-                  snippet: sanitizeDisplay(EventConfig.venueAddress),
-                ),
-              ),
-            },
+            initialCameraPosition: CameraPosition(target: LatLng(vLat, vLng), zoom: 13),
+            markers: markers,
           ),
         ),
         Padding(
@@ -135,6 +167,10 @@ class _OutdoorMap extends StatelessWidget {
               children: [
                 Text(sanitizeDisplay(EventConfig.venueName), style: Theme.of(context).textTheme.titleSmall),
                 Text(sanitizeDisplay(EventConfig.venueAddress), style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  '${places.length} nearby places · ${ReferenceData.cachedHotels?.where((h) => h.latitude != null).length ?? 0} geocoded hotels',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
                 if (pois?['shuttle'] != null) ...[
                   const SizedBox(height: 8),
                   Text(sanitizeDisplay(pois!['shuttle'] as String?), style: Theme.of(context).textTheme.bodySmall),
