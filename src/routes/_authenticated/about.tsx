@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { CONFERENCE_INFO, TRANSPORT } from "@/lib/reference";
 import { EVENT_CONFIG } from "@/lib/event-config";
 
@@ -12,17 +13,17 @@ function AboutPage() {
   const info = CONFERENCE_INFO;
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-5">
-      <div>
-        <h2 className="text-xl font-bold">About NSE</h2>
-        <p className="text-sm text-muted-foreground">
-          Conference identity and context.
-        </p>
-      </div>
+    <div className="space-y-4 pb-6">
+      <NsePageHeader
+        title="About NSE"
+        subtitle="Conference identity and context."
+        backTo="/home"
+      />
 
+      <div className="space-y-4 px-4">
       {/* Identity card — brand gradient like the APK's hero */}
       <Card className="overflow-hidden border-0 shadow-card">
-        <div className="bg-brand-gradient px-4 py-6 text-center text-white">
+        <div className="hero-sheen bg-brand-gradient px-4 py-6 text-center text-white">
           <p className="text-xs font-medium uppercase tracking-widest text-white/70">
             {info.organizationName}
           </p>
@@ -118,6 +119,7 @@ function AboutPage() {
       <p className="pt-2 text-center text-xs text-muted-foreground">
         {EVENT_CONFIG.shortName} · {EVENT_CONFIG.dates}
       </p>
+      </div>
     </div>
   );
 }

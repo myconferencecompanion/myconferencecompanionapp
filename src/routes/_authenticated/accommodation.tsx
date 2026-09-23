@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,22 +91,21 @@ function AccommodationPage() {
   }, [sort, cap, query]);
 
   return (
-    <div className="px-4 pt-5">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h2 className="text-xl font-bold">Accommodation</h2>
-          <p className="text-sm text-muted-foreground">
-            {HOTELS.length} delegate hotels · official masterlist
-          </p>
-        </div>
-        <Badge variant="secondary" className="shrink-0">
+    <div className="pb-6">
+      <NsePageHeader
+        title="Accommodation"
+        subtitle={`${HOTELS.length} delegate hotels · official masterlist`}
+        backTo="/home"
+      >
+        <Badge variant="secondary" className="shrink-0 bg-white/15 text-white hover:bg-white/15">
           <BedDouble className="mr-1 h-3 w-3" />
           {HOTELS.reduce((sum, h) => sum + (Number(h.roomSummary?.match(/\d+/)?.[0]) || 0), 0)}+ rooms
         </Badge>
-      </div>
+      </NsePageHeader>
 
+      <div className="px-4 pt-4">
       {/* Search */}
-      <div className="relative mt-4">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={query}
@@ -164,7 +164,7 @@ function AccommodationPage() {
         Showing {hotels.length} of {HOTELS.length}
       </p>
 
-      <div className="mt-3 space-y-4 pb-6">
+      <div className="mt-3 space-y-4">
         {hotels.map((h) => (
           <HotelCard key={h.id} hotel={h} />
         ))}
@@ -175,6 +175,7 @@ function AccommodationPage() {
             </p>
           </Card>
         )}
+      </div>
       </div>
     </div>
   );

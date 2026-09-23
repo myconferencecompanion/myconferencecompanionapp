@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,16 +23,16 @@ function TransportPage() {
   const { defaultPolicy, policyDescriptions, buses, scheduleTemplate } = TRANSPORT;
 
   return (
-    <div className="px-4 pb-6 pt-5">
-      <div>
-        <h2 className="text-xl font-bold">Transport</h2>
-        <p className="text-sm text-muted-foreground">
-          Delegate shuttles · {buses.length} buses
-        </p>
-      </div>
+    <div className="pb-6">
+      <NsePageHeader
+        title="Transport"
+        subtitle={`Delegate shuttles · ${buses.length} buses`}
+        backTo="/home"
+      />
 
+      <div className="px-4 pt-4">
       {/* Policy card */}
-      <Card className="mt-4 border-0 p-4 shadow-card">
+      <Card className="border-0 p-4 shadow-card">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
             <Bus className="h-5 w-5" />
@@ -116,6 +117,7 @@ function TransportPage() {
           })}
         </div>
       </section>
+      </div>
     </div>
   );
 }

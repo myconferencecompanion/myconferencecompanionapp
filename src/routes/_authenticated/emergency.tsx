@@ -1,85 +1,125 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Phone, ShieldAlert, Stethoscope, Lock, Megaphone, AlertTriangle } from "lucide-react";
+import { Phone, Stethoscope, Lock, Megaphone, AlertTriangle, ShieldAlert } from "lucide-react";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { EVENT_CONFIG } from "@/lib/event-config";
-
-const ICON_BY_CATEGORY: Record<string, typeof Phone> = {
-  medical: Stethoscope,
-  security: Lock,
-  organizer: Megaphone,
-  emergency: AlertTriangle,
-  general: ShieldAlert,
-};
 
 export const Route = createFileRoute("/_authenticated/emergency")({
   component: EmergencyPage,
 });
 
+/* Bundled baseline — always available, matches the Flutter Emergency screen. */
+const BASE_CONTACTS = [
+  {
+    id: "hotline",
+    name: "Conference Hotline",
+    detail: "24/7 operations desk at ICC",
+    phone: EVENT_CONFIG.primaryHotline,
+    icon: Megaphone,
+    tint: "text-primary",
+    bg: "bg-primary-soft",
+  },
+  {
+    id: "police",
+    name: "Police",
+    detail: "Borno State Command — national emergency line",
+    phone: "112",
+    icon: Lock,
+    tint: "text-primary",
+    bg: "bg-primary-soft",
+  },
+  {
+    id: "ambulance",
+    name: "Ambulance / Medical",
+    detail: "National emergency services",
+    phone: "112",
+    icon: Stethoscope,
+    tint: "text-destructive",
+    bg: "bg-destructive-soft",
+  },
+  {
+    id: "venue-security",
+    name: "Venue Security",
+    detail: "ICC security office, Main Lobby",
+    phone: EVENT_CONFIG.primaryHotline,
+    icon: ShieldAlert,
+    tint: "text-destructive",
+    bg: "bg-destructive-soft",
+  },
+] as const;
+
 function EmergencyPage() {
-  const { data: contacts = [] } = useQuery({
+  // Extra contacts from the backend, when configured (demo mode yields none).
+  const { data: extra = [] } = useQuery({
     queryKey: ["emergency-contacts"],
     queryFn: async () => {
       const { data } = await supabase.from("emergency_contacts").select("*").order("sort_order");
-      return data ?? [];
+      return (data ?? []) as unknown as { id: string; label: string; phone: string; category?: string }[];
     },
   });
 
   return (
-    <div className="space-y-5 px-4 pt-5">
-      <div>
-        <h2 className="text-xl font-bold">Emergency</h2>
-        <p className="text-sm text-muted-foreground">Tap to call. Stay safe.</p>
+    <div className="pb-6">
+      <NsePageHeader
+        title="Emergency"
+        subtitle="Tap a contact to call immediately."
+        backTo="/home"
+      />
+      <div className="space-y-3 px-4 pt-4">
+        {BASE_CONTACTS.map((c) => (
+          <ContactCard key={c.id} {...c} />
+        ))}
+        {extra
+          .filter((c) => c.phone)
+          .map((c) => (
+            <ContactCard
+              key={c.id}
+              id={c.id}
+              name={c.label}
+              detail={c.category ?? "Conference contact"}
+              phone={c.phone}
+              icon={AlertTriangle}
+              tint="text-warning-foreground"
+              bg="bg-accent-soft"
+            />
+          ))}
       </div>
+    </div>
+  );
+}
 
-      <div className="space-y-3">
-        {contacts.map((c) => {
-          const Icon = ICON_BY_CATEGORY[c.category] ?? Phone;
-          const isCritical = c.category === "emergency";
-          return (
-            <a key={c.id} href={`tel:${c.phone}`} className="block">
-              <Card
-                className={`flex items-center gap-4 border-0 p-4 shadow-card ${
-                  isCritical ? "bg-destructive text-destructive-foreground" : ""
-                }`}
-              >
-                <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-                    isCritical ? "bg-destructive-foreground/20" : "bg-primary-soft"
-                  }`}
-                >
-                  <Icon className={`h-6 w-6 ${isCritical ? "" : "text-primary"}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">{c.label}</p>
-                  <p className={`text-lg font-bold ${isCritical ? "" : "text-primary"}`}>
-                    {c.phone}
-                  </p>
-                  {c.description && (
-                    <p className={`mt-0.5 text-xs ${isCritical ? "text-destructive-foreground/80" : "text-muted-foreground"}`}>
-                      {c.description}
-                    </p>
-                  )}
-                </div>
-                <Phone className="h-5 w-5 shrink-0" />
-              </Card>
-            </a>
-          );
-        })}
+function ContactCard({
+  name,
+  detail,
+  phone,
+  icon: Icon,
+  tint,
+  bg,
+}: {
+  id: string;
+  name: string;
+  detail: string;
+  phone: string;
+  icon: typeof Phone;
+  tint: string;
+  bg: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 shadow-card">
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${bg}`}>
+        <Icon className={`h-5 w-5 ${tint}`} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold">{name}</p>
+        <p className="truncate text-xs text-muted-foreground">{detail}</p>
       </div>
-
-      <Card className="border-0 bg-accent-soft p-4 shadow-card">
-        <h3 className="mb-2 text-sm font-semibold">Emergency procedures</h3>
-        <ul className="space-y-1.5 text-xs text-muted-foreground">
-          <li>• Stay calm and alert staff immediately if you witness anything unsafe.</li>
-          <li>• First-aid station is located next to Hall A (8am–10pm daily).</li>
-          <li>• Exit routes are marked with green signs. Follow staff instructions during any drill.</li>
-          <li>• Lost & found: report at the registration desk in the Main Lobby.</li>
-          <li>• Conference hotline: {EVENT_CONFIG.primaryHotline}</li>
-        </ul>
-      </Card>
+      <Button size="sm" asChild className="shrink-0">
+        <a href={`tel:${phone.replace(/\s+/g, "")}`} aria-label={`Call ${name}`}>
+          <Phone className="h-3.5 w-3.5" /> Call
+        </a>
+      </Button>
     </div>
   );
 }

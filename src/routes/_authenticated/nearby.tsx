@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,16 +79,16 @@ function NearbyPage() {
   const shown = grouped.reduce((n, [, list]) => n + list.length, 0);
 
   return (
-    <div className="px-4 pt-5">
-      <div>
-        <h2 className="text-xl font-bold">Nearby</h2>
-        <p className="text-sm text-muted-foreground">
-          {total} key places around {VENUE_DATA.venue.shortName}
-        </p>
-      </div>
+    <div className="pb-6">
+      <NsePageHeader
+        title="Nearby"
+        subtitle={`${total} key places around ${VENUE_DATA.venue.shortName}`}
+        backTo="/home"
+      />
 
+      <div className="px-4 pt-4">
       {/* Search */}
-      <div className="relative mt-4">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={query}
@@ -134,7 +135,7 @@ function NearbyPage() {
         </p>
       )}
 
-      <div className="mt-3 space-y-5 pb-6">
+      <div className="mt-3 space-y-5">
         {grouped.map(([category, pois]) => {
           const { icon: Icon, tint } = categoryMeta(category);
           return (
@@ -165,6 +166,7 @@ function NearbyPage() {
             <p className="text-sm text-muted-foreground">No places match.</p>
           </Card>
         )}
+      </div>
       </div>
     </div>
   );

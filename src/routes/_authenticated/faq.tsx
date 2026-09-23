@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,16 +50,16 @@ function FaqPage() {
   }, [results]);
 
   return (
-    <div className="px-4 pb-6 pt-5">
-      <div>
-        <h2 className="text-xl font-bold">Conference Guide</h2>
-        <p className="text-sm text-muted-foreground">
-          {useMemo(() => `${searchFaqs("").length} answers to common questions`, [])}
-        </p>
-      </div>
+    <div className="pb-6">
+      <NsePageHeader
+        title="Conference Guide"
+        subtitle={`${searchFaqs("").length} answers to common questions`}
+        backTo="/home"
+      />
 
+      <div className="px-4 pt-4">
       {/* Search */}
-      <div className="relative mt-4">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={query}
@@ -99,6 +100,7 @@ function FaqPage() {
             </p>
           </Card>
         )}
+      </div>
       </div>
     </div>
   );
