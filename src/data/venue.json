@@ -1,0 +1,290 @@
+{
+  "venue": {
+    "name": "International Conference Centre",
+    "shortName": "ICC Maiduguri",
+    "latitude": 11.8333,
+    "longitude": 13.15,
+    "image": "/venues/icc-maiduguri.jpg"
+  },
+  "shuttle": "Delegate shuttle buses depart ICC main entrance every 30 minutes (7:30 AM–9:00 PM) for partner hotels on the Damboa Road corridor.",
+  "parking": "On-site parking at ICC with security. Follow marshals at the main gate. VIP drop-off at the lobby canopy.",
+  "directions": [
+    "From Maiduguri Airport: ~45 min via Airport Road → Baga Road → ICC.",
+    "From city centre: Head east on Baga Road; ICC is signed from Damboa Road junction.",
+    "Conference registration opens 7:00 AM daily at Main Lobby."
+  ],
+  "nearby": [
+    {
+      "id": "maiduguri-airport",
+      "name": "Maiduguri International Airport",
+      "category": "Airport",
+      "distance": "7.6 km",
+      "distanceKm": 7.6,
+      "latitude": 11.8542,
+      "longitude": 13.0839,
+      "note": "MIU/DNMA · arrivals terminal, Airport Road",
+      "query": "Maiduguri International Airport"
+    },
+    {
+      "id": "police-hq",
+      "name": "Nigeria Police — Borno State Command HQ",
+      "category": "Security",
+      "distance": "1.2 km",
+      "distanceKm": 1.2,
+      "latitude": 11.835,
+      "longitude": 13.161,
+      "note": "State Command headquarters · emergency response",
+      "query": "Borno State Police Command Headquarters Maiduguri",
+      "phone": "08068075581"
+    },
+    {
+      "id": "dss-hq",
+      "name": "DSS Borno Command Headquarters",
+      "category": "Security",
+      "distance": "3.9 km",
+      "distanceKm": 3.9,
+      "latitude": 11.8356,
+      "longitude": 13.114,
+      "note": "Department of State Services · Borno State Command",
+      "query": "DSS Borno State Command Maiduguri"
+    },
+    {
+      "id": "dandal-police",
+      "name": "Dandal Police Station",
+      "category": "Security",
+      "distance": "1.1 km",
+      "distanceKm": 1.1,
+      "latitude": 11.843,
+      "longitude": 13.1493,
+      "note": "City centre division · Post Office area",
+      "query": "Dandal Police Station Maiduguri",
+      "phone": "08108637500"
+    },
+    {
+      "id": "metro-police",
+      "name": "Metro Police Station",
+      "category": "Security",
+      "distance": "2.5 km",
+      "distanceKm": 2.5,
+      "latitude": 11.833,
+      "longitude": 13.173,
+      "note": "Maiduguri Metropolitan (Metro) division",
+      "query": "Metro Police Station Maiduguri",
+      "phone": "09129340466"
+    },
+    {
+      "id": "maimalari-cantonment",
+      "name": "7 Division Nigerian Army — Maimalari Cantonment",
+      "category": "Security",
+      "distance": "3.2 km",
+      "distanceKm": 3.2,
+      "latitude": 11.805,
+      "longitude": 13.155,
+      "note": "Garrison command headquarters · Damboa Road",
+      "query": "Maimalari Cantonment Maiduguri"
+    },
+    {
+      "id": "giwa-barracks",
+      "name": "Giwa Barracks",
+      "category": "Security",
+      "distance": "4.8 km",
+      "distanceKm": 4.8,
+      "latitude": 11.7937,
+      "longitude": 13.1683,
+      "note": "Military cantonment · Jidari Polo area",
+      "query": "Giwa Barracks Maiduguri"
+    },
+    {
+      "id": "nscdc-borno",
+      "name": "NSCDC Borno State Command",
+      "category": "Security",
+      "distance": "1.7 km",
+      "distanceKm": 1.7,
+      "latitude": 11.818,
+      "longitude": 13.152,
+      "note": "Nigeria Security & Civil Defence Corps · state command",
+      "query": "NSCDC Borno State Command Maiduguri"
+    },
+    {
+      "id": "government-house",
+      "name": "Borno State Government House",
+      "category": "Government",
+      "distance": "1.5 km",
+      "distanceKm": 1.5,
+      "latitude": 11.8212,
+      "longitude": 13.1566,
+      "note": "Seat of the Borno State Government · Talba Road, Old GRA",
+      "query": "Government House Maiduguri"
+    },
+    {
+      "id": "borno-new-lodge",
+      "name": "Borno New Lodge",
+      "category": "Government",
+      "distance": "1.8 km",
+      "distanceKm": 1.8,
+      "latitude": 11.82,
+      "longitude": 13.159,
+      "note": "New Government Lodge · Talba Road",
+      "query": "Borno New Lodge Maiduguri"
+    },
+    {
+      "id": "lagos-house",
+      "name": "Lagos House",
+      "category": "Government",
+      "distance": "1.3 km",
+      "distanceKm": 1.3,
+      "latitude": 11.8225,
+      "longitude": 13.155,
+      "note": "Lagos State Government liaison house",
+      "query": "Lagos House Maiduguri"
+    },
+    {
+      "id": "yobe-liaison",
+      "name": "Yobe State Liaison Office",
+      "category": "Government",
+      "distance": "1.1 km",
+      "distanceKm": 1.1,
+      "latitude": 11.834,
+      "longitude": 13.16,
+      "note": "Yobe State Government liaison office",
+      "query": "Yobe State Liaison Office Maiduguri"
+    },
+    {
+      "id": "shehu-palace",
+      "name": "Shehu of Borno's Palace",
+      "category": "Culture",
+      "distance": "2.0 km",
+      "distanceKm": 2,
+      "latitude": 11.8481,
+      "longitude": 13.1604,
+      "note": "Royal palace of the Shehu of Borno · Kashim Ibrahim Road",
+      "query": "Shehu of Borno's Palace Maiduguri"
+    },
+    {
+      "id": "borno-museum",
+      "name": "Borno State Museum",
+      "category": "Culture",
+      "distance": "2.0 km",
+      "distanceKm": 2,
+      "latitude": 11.8477,
+      "longitude": 13.16,
+      "note": "Museum & archives within the Shehu's palace grounds",
+      "query": "Borno State Museum Maiduguri"
+    },
+    {
+      "id": "specialist-hospital",
+      "name": "Borno State Specialist Hospital",
+      "category": "Hospital",
+      "distance": "0.7 km",
+      "distanceKm": 0.7,
+      "latitude": 11.8394,
+      "longitude": 13.1499,
+      "note": "Largest state hospital · near Post Office area",
+      "query": "Borno State Specialist Hospital Maiduguri"
+    },
+    {
+      "id": "umaru-shehu-hospital",
+      "name": "Umaru Shehu Ultra-Modern Hospital",
+      "category": "Hospital",
+      "distance": "6.8 km",
+      "distanceKm": 6.8,
+      "latitude": 11.8344,
+      "longitude": 13.0877,
+      "note": "State hospital · Kano–Maiduguri Highway, near Airport Road",
+      "query": "Umaru Shehu Hospital Maiduguri"
+    },
+    {
+      "id": "shuwa-memorial-hospital",
+      "name": "Muhammadu Shuwa Memorial Hospital",
+      "category": "Hospital",
+      "distance": "2.1 km",
+      "distanceKm": 2.1,
+      "latitude": 11.818,
+      "longitude": 13.161,
+      "note": "Memorial hospital · Kumo Road, Old GRA",
+      "query": "Muhammadu Shuwa Memorial Hospital Maiduguri"
+    },
+    {
+      "id": "umth",
+      "name": "University of Maiduguri Teaching Hospital",
+      "category": "Hospital",
+      "distance": "3.7 km",
+      "distanceKm": 3.7,
+      "latitude": 11.8252,
+      "longitude": 13.1827,
+      "note": "UMTH · tertiary referral centre, Gwange/Mairi",
+      "query": "University of Maiduguri Teaching Hospital"
+    },
+    {
+      "id": "eye-dental-hospital",
+      "name": "Eye & Dental Hospital",
+      "category": "Hospital",
+      "distance": "1.0 km",
+      "distanceKm": 1,
+      "latitude": 11.8262,
+      "longitude": 13.144,
+      "note": "Specialist eye & dental care · Damboa Road",
+      "query": "Borno State Eye and Dental Hospital Maiduguri"
+    },
+    {
+      "id": "dandal-kura",
+      "name": "Dandal Kura Restaurant",
+      "category": "Restaurant",
+      "distance": "1.2 km",
+      "distanceKm": 1.2,
+      "latitude": 11.842,
+      "longitude": 13.158,
+      "note": "Local cuisine, delegate-friendly hours",
+      "query": "Dandal Kura Restaurant Maiduguri",
+      "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80"
+    },
+    {
+      "id": "ashaka-pharmacy",
+      "name": "Ashaka Pharmacy",
+      "category": "Pharmacy",
+      "distance": "0.8 km",
+      "distanceKm": 0.8,
+      "latitude": 11.838,
+      "longitude": 13.152,
+      "note": "OTC medicines and essentials",
+      "query": "pharmacy near Maiduguri ICC",
+      "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80"
+    },
+    {
+      "id": "zenith-atm",
+      "name": "Zenith Bank ATM",
+      "category": "ATM",
+      "distance": "0.5 km",
+      "distanceKm": 0.5,
+      "latitude": 11.835,
+      "longitude": 13.148,
+      "note": "Baga Road branch",
+      "query": "Zenith Bank ATM Baga Road Maiduguri",
+      "image": "https://images.unsplash.com/photo-1563013547-824ae1b704d3?w=400&q=80"
+    },
+    {
+      "id": "monday-market",
+      "name": "Monday Market",
+      "category": "Shopping",
+      "distance": "3.7 km",
+      "distanceKm": 3.7,
+      "latitude": 11.86,
+      "longitude": 13.17,
+      "note": "Textiles, crafts, and local goods",
+      "query": "Monday Market Maiduguri",
+      "image": "https://images.unsplash.com/photo-1555529669-2269763671c8?w=400&q=80"
+    },
+    {
+      "id": "unimaid",
+      "name": "University of Maiduguri",
+      "category": "Spouses visit",
+      "distance": "4 km",
+      "distanceKm": 4,
+      "latitude": 11.808,
+      "longitude": 13.185,
+      "note": "Spouses programme cultural visit",
+      "query": "University of Maiduguri",
+      "image": "https://images.unsplash.com/photo-1562774053-701939374585?w=400&q=80"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ const tiles = [
   {
     to: "/map",
     label: "Venue & Outdoor Map",
-    description: "Floor plan, hotspots, and the venue on Google Maps.",
+    description: "Floor plan, hotspots, and 24 researched places on the map.",
     icon: MapPin,
     tone: "bg-primary-soft text-primary",
   },
@@ -25,14 +25,14 @@ const tiles = [
   {
     to: "/accommodation",
     label: "Hotels",
-    description: "Recommended stays close to the venue.",
+    description: "The full 46-hotel delegate masterlist with rates.",
     icon: Hotel,
     tone: "bg-primary-soft text-primary",
   },
   {
     to: "/nearby",
     label: "Nearby Places",
-    description: "Food, ATMs, pharmacies and more around you.",
+    description: "Security, hospitals, government offices & more.",
     icon: Coffee,
     tone: "bg-accent-soft text-warning-foreground",
   },
