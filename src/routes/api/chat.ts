@@ -3,6 +3,7 @@ import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { EVENT_CONFIG } from "@/lib/event-config";
 
 export const Route = createFileRoute("/api/chat")({
   server: {
@@ -15,7 +16,12 @@ export const Route = createFileRoute("/api/chat")({
           }
 
           const key = process.env.LOVABLE_API_KEY;
-          if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+          if (!key) {
+            return new Response(JSON.stringify({ error: "The AI concierge is not connected yet — please check back soon." }), {
+              status: 503,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
 
           // Build event context from the database
           const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
@@ -42,14 +48,18 @@ export const Route = createFileRoute("/api/chat")({
           const gateway = createLovableAiGatewayProvider(key);
           const result = streamText({
             model: gateway("google/gemini-3-flash-preview"),
-            system: `You are the friendly AI concierge for NaijaTech Summit 2026, an African tech conference in Lagos on June 10-11, 2026 at Eko Convention Centre.
+            system: `You are the friendly AI concierge for ${EVENT_CONFIG.name} ${EVENT_CONFIG.year} — ${EVENT_CONFIG.tagline}. The conference runs ${EVENT_CONFIG.dates} at ${EVENT_CONFIG.venue.name}, ${EVENT_CONFIG.venue.address}.
 
 Be concise, warm, and confident. Answer questions about the schedule, speakers, venue, hotels, and emergency contacts. When asked about timing or location, give specific answers. If the user asks something outside the conference, politely steer them back.
 
 Use markdown formatting (bold, lists) when it helps readability.
 
 EVENT KNOWLEDGE:
-${eventContext}`,
+${eventContext}
+
+WI-FI: ${EVENT_CONFIG.wifi.ssid} / ${EVENT_CONFIG.wifi.password}
+VENUE: ${EVENT_CONFIG.venue.name}, ${EVENT_CONFIG.venue.address}
+CONFERENCE HOTLINE: ${EVENT_CONFIG.primaryHotline}`.trim(),
             messages: await convertToModelMessages(messages),
           });
 
@@ -87,8 +97,5 @@ ${d.emergency.map((e) => `- ${e.label}: ${e.phone}${e.description ? ` (${e.descr
 
 LATEST ANNOUNCEMENTS:
 ${d.announcements.map((a) => `- [${a.priority}] ${a.title}: ${a.body}`).join("\n")}
-
-WI-FI: NaijaTech-2026 / future2026
-VENUE: Eko Convention Centre, Plot 1415 Adetokunbo Ademola St, Victoria Island, Lagos
 `.trim();
 }

@@ -7,12 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { EVENT_CONFIG } from "@/lib/event-config";
 
 function NotFoundComponent() {
   return (
@@ -39,9 +39,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -80,17 +77,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#123E73" },
-      { title: "NaijaTech Summit 2026" },
-      { name: "description", content: "Your companion app for NaijaTech Summit 2026 — schedule, speakers, map, networking, and more." },
-      { name: "author", content: "NaijaTech Summit" },
-      { property: "og:title", content: "NaijaTech Summit 2026" },
-      { property: "og:description", content: "Your companion app for NaijaTech Summit 2026 — schedule, speakers, map, networking, and more." },
+      { title: `${EVENT_CONFIG.name} ${EVENT_CONFIG.year}` },
+      { name: "description", content: `Your companion app for ${EVENT_CONFIG.name} ${EVENT_CONFIG.year} — schedule, speakers, map, networking, and more.` },
+      { name: "author", content: EVENT_CONFIG.name },
+      { property: "og:title", content: `${EVENT_CONFIG.name} ${EVENT_CONFIG.year}` },
+      { property: "og:description", content: `Your companion app for ${EVENT_CONFIG.name} ${EVENT_CONFIG.year} — schedule, speakers, map, networking, and more.` },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "NaijaTech Summit 2026" },
-      { name: "twitter:description", content: "Your companion app for NaijaTech Summit 2026 — schedule, speakers, map, networking, and more." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/03d13153-a67d-4e30-8860-9bc88cfc4b2f" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/03d13153-a67d-4e30-8860-9bc88cfc4b2f" },
+      { name: "twitter:title", content: `${EVENT_CONFIG.name} ${EVENT_CONFIG.year}` },
+      { name: "twitter:description", content: `Your companion app for ${EVENT_CONFIG.name} ${EVENT_CONFIG.year} — schedule, speakers, map, networking, and more.` },
+      { property: "og:image", content: "/nse_crest.png" },
+      { name: "twitter:image", content: "/nse_crest.png" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
