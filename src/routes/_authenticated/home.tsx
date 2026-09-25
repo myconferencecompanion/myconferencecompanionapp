@@ -141,10 +141,10 @@ function HomePage() {
   );
 }
 
-/* Port of EventConfig.countdownLabel (lib/config/event_config.dart). */
+/* Countdown to the conference start (dates live in EVENT_CONFIG). */
 function countdownLabel() {
-  const start = new Date(2026, 10, 30); // 30 Nov 2026
-  const end = new Date(2026, 11, 4, 23, 59);
+  const start = EVENT_CONFIG.start;
+  const end = EVENT_CONFIG.end;
   const now = new Date();
   if (now > end) return "See you next year";
   const days = Math.floor(

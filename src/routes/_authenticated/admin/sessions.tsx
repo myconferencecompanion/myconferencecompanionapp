@@ -106,7 +106,7 @@ function SessionForm({ close, editing }: { close: () => void; editing: Session |
       <div className="space-y-1"><Label>Description</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1"><Label>Day</Label>
-          <Input type="number" min={1} max={5} value={form.day} onChange={(e) => setForm({ ...form, day: Number(e.target.value) })} />
+          <Input type="number" min={1} max={7} value={form.day} onChange={(e) => setForm({ ...form, day: Number(e.target.value) })} />
         </div>
         <div className="space-y-1"><Label>Type</Label>
           <Input value={form.session_type} onChange={(e) => setForm({ ...form, session_type: e.target.value })} placeholder="talk, keynote, panel…" />

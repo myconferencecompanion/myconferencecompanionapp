@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatTimeRange, initials } from "@/lib/format";
+import { EVENT_CONFIG } from "@/lib/event-config";
 import { BookmarkPlus, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -42,8 +43,24 @@ function SchedulePage() {
 }
 
 
+// Conference days derived from EVENT_CONFIG start/end (Nov 28 - Dec 4 2026).
+const CONF_DAYS = (() => {
+  const days: { value: number; label: string }[] = [];
+  const d = new Date(EVENT_CONFIG.start);
+  let n = 1;
+  while (d <= EVENT_CONFIG.end) {
+    days.push({
+      value: n,
+      label: `Day ${n} · ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`,
+    });
+    d.setDate(d.getDate() + 1);
+    n += 1;
+  }
+  return days;
+})();
+
 function SessionsList() {
-  const [day, setDay] = useState<1 | 2>(1);
+  const [day, setDay] = useState<number>(1);
   const [track, setTrack] = useState<string>("All");
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -93,10 +110,13 @@ function SessionsList() {
   return (
     <>
       <div className="border-t border-border bg-background/95 px-4 pt-3 backdrop-blur">
-        <Tabs value={`${day}`} onValueChange={(v) => setDay(Number(v) as 1 | 2)}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="1">Day 1 · Jun 10</TabsTrigger>
-            <TabsTrigger value="2">Day 2 · Jun 11</TabsTrigger>
+        <Tabs value={`${day}`} onValueChange={(v) => setDay(Number(v))}>
+          <TabsList className="flex w-full justify-start gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CONF_DAYS.map((d) => (
+              <TabsTrigger key={d.value} value={`${d.value}`} className="shrink-0">
+                {d.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
         <ScrollArea className="w-full">
