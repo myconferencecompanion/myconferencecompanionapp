@@ -74,7 +74,7 @@ function LandingPage() {
           )}
           {isSupabaseConfigured() && (
             <p className="text-center text-xs text-white/60">
-              Free for all confirmed attendees · Sign in with email or Google
+              Free for all confirmed attendees · Sign in with email
             </p>
           )}
         </div>
