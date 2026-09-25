@@ -143,12 +143,12 @@ export function hasHotelPhotos(hotel: Hotel): boolean {
   return hotel.photoCount > 0;
 }
 
-/** Photo URL resolver: bundled photos live under /hotels/<id>/… on the web. */
+/** Photo URL resolver: bundled photos live under /hotels/<id>/preview on the web. */
 export function hotelPhotoUrl(hotel: Hotel, index = 0, thumb = true): string {
   const img = hotel.images[index];
   if (!img) return "";
-  const raw = thumb ? img.thumb : img.preview;
-  return raw.startsWith("http") ? raw : raw;
+  // Only preview images are bundled; thumbs fall back to them.
+  return img.preview;
 }
 
 export const POI_CATEGORY_ORDER = [
