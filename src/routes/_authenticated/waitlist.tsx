@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatRelative } from "@/lib/format";
-import { ConciergeBell, UtensilsCrossed, ClipboardList } from "lucide-react";
+import { ConciergeBell, UtensilsCrossed } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/waitlist")({
   component: WaitlistPage,
@@ -25,20 +25,6 @@ function WaitlistPage() {
         .select("*, food_order_items(*)")
         .eq("user_id", user!.id)
         .in("status", ["pending", "preparing", "ready"])
-        .order("created_at", { ascending: false });
-      return data ?? [];
-    },
-  });
-
-  const { data: errands = [] } = useQuery({
-    queryKey: ["wl-errands", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("errand_requests")
-        .select("*")
-        .eq("user_id", user!.id)
-        .in("status", ["requested", "accepted", "in_progress"])
         .order("created_at", { ascending: false });
       return data ?? [];
     },
@@ -63,13 +49,12 @@ function WaitlistPage() {
     const ch = supabase
       .channel("waitlist-rt")
       .on("postgres_changes", { event: "*", schema: "public", table: "food_orders", filter: `user_id=eq.${user.id}` }, () => qc.invalidateQueries({ queryKey: ["wl-orders", user.id] }))
-      .on("postgres_changes", { event: "*", schema: "public", table: "errand_requests", filter: `user_id=eq.${user.id}` }, () => qc.invalidateQueries({ queryKey: ["wl-errands", user.id] }))
       .on("postgres_changes", { event: "*", schema: "public", table: "usher_requests", filter: `user_id=eq.${user.id}` }, () => qc.invalidateQueries({ queryKey: ["wl-ushers", user.id] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user, qc]);
 
-  const total = orders.length + errands.length + ushers.length;
+  const total = orders.length + ushers.length;
 
   return (
     <div className="space-y-5 px-4 pt-5 pb-8">
@@ -111,22 +96,6 @@ function WaitlistPage() {
                 <p className="mt-1 text-[11px] text-muted-foreground">{formatRelative(o.created_at)}</p>
               </div>
               <StatusBadge status={o.status} />
-            </div>
-          </Card>
-        ))}
-      </Section>
-
-      <Section title="Errands" icon={ClipboardList} emptyHref="/concierge/errands" emptyLabel="Request an errand">
-        {errands.map((e) => (
-          <Card key={e.id} className="border-0 p-3 shadow-card">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">{e.category}</p>
-                <p className="text-xs text-muted-foreground">{e.description}</p>
-                {e.room_number && <p className="text-[11px] text-muted-foreground">Room {e.room_number}</p>}
-                <p className="mt-1 text-[11px] text-muted-foreground">{formatRelative(e.created_at)}</p>
-              </div>
-              <StatusBadge status={e.status} />
             </div>
           </Card>
         ))}

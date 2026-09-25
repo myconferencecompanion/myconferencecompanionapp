@@ -130,7 +130,7 @@ function HomePage() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold">Need anything?</p>
               <p className="text-xs text-muted-foreground">
-                Call an usher, order a meal, or send an errand.
+                Call an usher or order a meal.
               </p>
             </div>
             <span className="text-success">›</span>

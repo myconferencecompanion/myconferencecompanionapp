@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
-import { BellRing, UtensilsCrossed, Briefcase, ReceiptText } from "lucide-react";
+import { BellRing, UtensilsCrossed, ReceiptText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/concierge/")({
   component: ConciergeHub,
@@ -22,16 +22,9 @@ const tiles = [
     tone: "bg-accent-soft text-warning-foreground",
   },
   {
-    to: "/concierge/errands",
-    label: "Concierge Errands",
-    desc: "Send someone on an errand from your hotel.",
-    icon: Briefcase,
-    tone: "bg-primary-soft text-primary",
-  },
-  {
     to: "/concierge/orders",
     label: "My Orders & Requests",
-    desc: "View status of food orders and errands.",
+    desc: "View status of food orders.",
     icon: ReceiptText,
     tone: "bg-accent-soft text-warning-foreground",
   },

@@ -41,13 +41,11 @@ import { Route as AuthenticatedNetworkUserIdRouteImport } from './routes/_authen
 import { Route as AuthenticatedConciergeUsherRouteImport } from './routes/_authenticated/concierge.usher'
 import { Route as AuthenticatedConciergeOrdersRouteImport } from './routes/_authenticated/concierge.orders'
 import { Route as AuthenticatedConciergeFoodRouteImport } from './routes/_authenticated/concierge.food'
-import { Route as AuthenticatedConciergeErrandsRouteImport } from './routes/_authenticated/concierge.errands'
 import { Route as AuthenticatedAdminUshersRouteImport } from './routes/_authenticated/admin/ushers'
 import { Route as AuthenticatedAdminSpeakersRouteImport } from './routes/_authenticated/admin/speakers'
 import { Route as AuthenticatedAdminSessionsRouteImport } from './routes/_authenticated/admin/sessions'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 import { Route as AuthenticatedAdminMenuRouteImport } from './routes/_authenticated/admin/menu'
-import { Route as AuthenticatedAdminErrandsRouteImport } from './routes/_authenticated/admin/errands'
 import { Route as AuthenticatedAdminEmergencyRouteImport } from './routes/_authenticated/admin/emergency'
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin/announcements'
 import { Route as AuthenticatedAdminAccommodationsRouteImport } from './routes/_authenticated/admin/accommodations'
@@ -221,12 +219,6 @@ const AuthenticatedConciergeFoodRoute =
     path: '/food',
     getParentRoute: () => AuthenticatedConciergeRoute,
   } as any)
-const AuthenticatedConciergeErrandsRoute =
-  AuthenticatedConciergeErrandsRouteImport.update({
-    id: '/errands',
-    path: '/errands',
-    getParentRoute: () => AuthenticatedConciergeRoute,
-  } as any)
 const AuthenticatedAdminUshersRoute =
   AuthenticatedAdminUshersRouteImport.update({
     id: '/ushers',
@@ -256,12 +248,6 @@ const AuthenticatedAdminMenuRoute = AuthenticatedAdminMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
-const AuthenticatedAdminErrandsRoute =
-  AuthenticatedAdminErrandsRouteImport.update({
-    id: '/errands',
-    path: '/errands',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
 const AuthenticatedAdminEmergencyRoute =
   AuthenticatedAdminEmergencyRouteImport.update({
     id: '/emergency',
@@ -314,13 +300,11 @@ export interface FileRoutesByFullPath {
   '/admin/accommodations': typeof AuthenticatedAdminAccommodationsRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/emergency': typeof AuthenticatedAdminEmergencyRoute
-  '/admin/errands': typeof AuthenticatedAdminErrandsRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sessions': typeof AuthenticatedAdminSessionsRoute
   '/admin/speakers': typeof AuthenticatedAdminSpeakersRoute
   '/admin/ushers': typeof AuthenticatedAdminUshersRoute
-  '/concierge/errands': typeof AuthenticatedConciergeErrandsRoute
   '/concierge/food': typeof AuthenticatedConciergeFoodRoute
   '/concierge/orders': typeof AuthenticatedConciergeOrdersRoute
   '/concierge/usher': typeof AuthenticatedConciergeUsherRoute
@@ -356,13 +340,11 @@ export interface FileRoutesByTo {
   '/admin/accommodations': typeof AuthenticatedAdminAccommodationsRoute
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/emergency': typeof AuthenticatedAdminEmergencyRoute
-  '/admin/errands': typeof AuthenticatedAdminErrandsRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sessions': typeof AuthenticatedAdminSessionsRoute
   '/admin/speakers': typeof AuthenticatedAdminSpeakersRoute
   '/admin/ushers': typeof AuthenticatedAdminUshersRoute
-  '/concierge/errands': typeof AuthenticatedConciergeErrandsRoute
   '/concierge/food': typeof AuthenticatedConciergeFoodRoute
   '/concierge/orders': typeof AuthenticatedConciergeOrdersRoute
   '/concierge/usher': typeof AuthenticatedConciergeUsherRoute
@@ -402,13 +384,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/accommodations': typeof AuthenticatedAdminAccommodationsRoute
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/emergency': typeof AuthenticatedAdminEmergencyRoute
-  '/_authenticated/admin/errands': typeof AuthenticatedAdminErrandsRoute
   '/_authenticated/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/sessions': typeof AuthenticatedAdminSessionsRoute
   '/_authenticated/admin/speakers': typeof AuthenticatedAdminSpeakersRoute
   '/_authenticated/admin/ushers': typeof AuthenticatedAdminUshersRoute
-  '/_authenticated/concierge/errands': typeof AuthenticatedConciergeErrandsRoute
   '/_authenticated/concierge/food': typeof AuthenticatedConciergeFoodRoute
   '/_authenticated/concierge/orders': typeof AuthenticatedConciergeOrdersRoute
   '/_authenticated/concierge/usher': typeof AuthenticatedConciergeUsherRoute
@@ -448,13 +428,11 @@ export interface FileRouteTypes {
     | '/admin/accommodations'
     | '/admin/announcements'
     | '/admin/emergency'
-    | '/admin/errands'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/sessions'
     | '/admin/speakers'
     | '/admin/ushers'
-    | '/concierge/errands'
     | '/concierge/food'
     | '/concierge/orders'
     | '/concierge/usher'
@@ -490,13 +468,11 @@ export interface FileRouteTypes {
     | '/admin/accommodations'
     | '/admin/announcements'
     | '/admin/emergency'
-    | '/admin/errands'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/sessions'
     | '/admin/speakers'
     | '/admin/ushers'
-    | '/concierge/errands'
     | '/concierge/food'
     | '/concierge/orders'
     | '/concierge/usher'
@@ -535,13 +511,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/accommodations'
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/emergency'
-    | '/_authenticated/admin/errands'
     | '/_authenticated/admin/menu'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/sessions'
     | '/_authenticated/admin/speakers'
     | '/_authenticated/admin/ushers'
-    | '/_authenticated/concierge/errands'
     | '/_authenticated/concierge/food'
     | '/_authenticated/concierge/orders'
     | '/_authenticated/concierge/usher'
@@ -786,13 +760,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConciergeFoodRouteImport
       parentRoute: typeof AuthenticatedConciergeRoute
     }
-    '/_authenticated/concierge/errands': {
-      id: '/_authenticated/concierge/errands'
-      path: '/errands'
-      fullPath: '/concierge/errands'
-      preLoaderRoute: typeof AuthenticatedConciergeErrandsRouteImport
-      parentRoute: typeof AuthenticatedConciergeRoute
-    }
     '/_authenticated/admin/ushers': {
       id: '/_authenticated/admin/ushers'
       path: '/ushers'
@@ -826,13 +793,6 @@ declare module '@tanstack/react-router' {
       path: '/menu'
       fullPath: '/admin/menu'
       preLoaderRoute: typeof AuthenticatedAdminMenuRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/admin/errands': {
-      id: '/_authenticated/admin/errands'
-      path: '/errands'
-      fullPath: '/admin/errands'
-      preLoaderRoute: typeof AuthenticatedAdminErrandsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/emergency': {
@@ -870,7 +830,6 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminAccommodationsRoute: typeof AuthenticatedAdminAccommodationsRoute
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminEmergencyRoute: typeof AuthenticatedAdminEmergencyRoute
-  AuthenticatedAdminErrandsRoute: typeof AuthenticatedAdminErrandsRoute
   AuthenticatedAdminMenuRoute: typeof AuthenticatedAdminMenuRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminSessionsRoute: typeof AuthenticatedAdminSessionsRoute
@@ -885,7 +844,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminAccommodationsRoute,
     AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
     AuthenticatedAdminEmergencyRoute: AuthenticatedAdminEmergencyRoute,
-    AuthenticatedAdminErrandsRoute: AuthenticatedAdminErrandsRoute,
     AuthenticatedAdminMenuRoute: AuthenticatedAdminMenuRoute,
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminSessionsRoute: AuthenticatedAdminSessionsRoute,
@@ -900,7 +858,6 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedConciergeRouteChildren {
-  AuthenticatedConciergeErrandsRoute: typeof AuthenticatedConciergeErrandsRoute
   AuthenticatedConciergeFoodRoute: typeof AuthenticatedConciergeFoodRoute
   AuthenticatedConciergeOrdersRoute: typeof AuthenticatedConciergeOrdersRoute
   AuthenticatedConciergeUsherRoute: typeof AuthenticatedConciergeUsherRoute
@@ -909,7 +866,6 @@ interface AuthenticatedConciergeRouteChildren {
 
 const AuthenticatedConciergeRouteChildren: AuthenticatedConciergeRouteChildren =
   {
-    AuthenticatedConciergeErrandsRoute: AuthenticatedConciergeErrandsRoute,
     AuthenticatedConciergeFoodRoute: AuthenticatedConciergeFoodRoute,
     AuthenticatedConciergeOrdersRoute: AuthenticatedConciergeOrdersRoute,
     AuthenticatedConciergeUsherRoute: AuthenticatedConciergeUsherRoute,

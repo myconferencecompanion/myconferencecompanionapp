@@ -29,29 +29,13 @@ function OrdersPage() {
     },
   });
 
-  const { data: errands = [] } = useQuery({
-    queryKey: ["my-errands", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("errand_requests")
-        .select("*")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
-      return data ?? [];
-    },
-  });
-
   useEffect(() => {
     if (!user) return;
     const ch = supabase
-      .channel("my-orders-errands")
+      .channel("my-orders")
       .on("postgres_changes",
         { event: "*", schema: "public", table: "food_orders", filter: `user_id=eq.${user.id}` },
         () => qc.invalidateQueries({ queryKey: ["my-orders", user.id] }))
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "errand_requests", filter: `user_id=eq.${user.id}` },
-        () => qc.invalidateQueries({ queryKey: ["my-errands", user.id] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user, qc]);
@@ -90,31 +74,6 @@ function OrdersPage() {
         )}
       </section>
 
-      <section>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Errands</h3>
-          <Link to="/concierge/errands" className="text-xs font-medium text-primary">New errand →</Link>
-        </div>
-        {errands.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No errands yet.</p>
-        ) : (
-          <div className="space-y-2">
-            {errands.map((e) => (
-              <Card key={e.id} className="border-0 p-3 shadow-card">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{e.category}</p>
-                    <p className="text-xs text-muted-foreground">{e.description}</p>
-                    {e.room_number && <p className="text-[11px] text-muted-foreground">Room {e.room_number}</p>}
-                    <p className="mt-1 text-[11px] text-muted-foreground">{formatRelative(e.created_at)}</p>
-                  </div>
-                  <ErrandStatusBadge status={e.status} urgency={e.urgency} />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }
@@ -128,20 +87,4 @@ function OrderStatusBadge({ status }: { status: string }) {
     cancelled: "bg-destructive/10 text-destructive",
   };
   return <Badge className={tone[status] ?? "bg-muted"}>{status}</Badge>;
-}
-
-function ErrandStatusBadge({ status, urgency }: { status: string; urgency: string }) {
-  const tone: Record<string, string> = {
-    requested: "bg-accent-soft text-warning-foreground",
-    accepted: "bg-primary-soft text-primary",
-    in_progress: "bg-primary text-primary-foreground",
-    completed: "bg-muted text-muted-foreground",
-    cancelled: "bg-destructive/10 text-destructive",
-  };
-  return (
-    <div className="flex flex-col items-end gap-1">
-      <Badge className={tone[status] ?? "bg-muted"}>{status.replace("_", " ")}</Badge>
-      {urgency === "urgent" && <Badge variant="destructive">urgent</Badge>}
-    </div>
-  );
 }

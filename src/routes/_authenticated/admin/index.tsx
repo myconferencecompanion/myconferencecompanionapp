@@ -11,7 +11,6 @@ import {
   Megaphone,
   Users,
   UtensilsCrossed,
-  ClipboardList,
   ConciergeBell,
   ShoppingBag,
 } from "lucide-react";
@@ -32,8 +31,7 @@ type CardDef = {
     | "/admin/announcements"
     | "/admin/menu"
     | "/admin/orders"
-    | "/admin/ushers"
-    | "/admin/errands";
+    | "/admin/ushers";
   roles: AppRole[];
 };
 
@@ -44,7 +42,7 @@ function AdminOverview() {
   const { data: counts } = useQuery({
     queryKey: ["admin-counts"],
     queryFn: async () => {
-      const [s, sp, a, e, an, p, m, o, u, er] = await Promise.all([
+      const [s, sp, a, e, an, p, m, o, u] = await Promise.all([
         supabase.from("sessions").select("id", { count: "exact", head: true }),
         supabase.from("speakers").select("id", { count: "exact", head: true }),
         supabase.from("accommodations").select("id", { count: "exact", head: true }),
@@ -54,7 +52,6 @@ function AdminOverview() {
         supabase.from("menu_items").select("id", { count: "exact", head: true }),
         supabase.from("food_orders").select("id", { count: "exact", head: true }).in("status", ["pending", "preparing", "ready"]),
         supabase.from("usher_requests").select("id", { count: "exact", head: true }).in("status", ["pending", "acknowledged"]),
-        supabase.from("errand_requests").select("id", { count: "exact", head: true }).in("status", ["requested", "accepted", "in_progress"]),
       ]);
       return {
         sessions: s.count ?? 0,
@@ -66,7 +63,6 @@ function AdminOverview() {
         menu: m.count ?? 0,
         openOrders: o.count ?? 0,
         openUshers: u.count ?? 0,
-        openErrands: er.count ?? 0,
       };
     },
   });
@@ -80,7 +76,6 @@ function AdminOverview() {
     { label: "Menu items", icon: UtensilsCrossed, value: counts?.menu ?? "—", to: "/admin/menu", roles: ["kitchen"] },
     { label: "Open orders", icon: ShoppingBag, value: counts?.openOrders ?? "—", to: "/admin/orders", roles: ["kitchen"] },
     { label: "Usher queue", icon: ConciergeBell, value: counts?.openUshers ?? "—", to: "/admin/ushers", roles: ["front_desk"] },
-    { label: "Errands queue", icon: ClipboardList, value: counts?.openErrands ?? "—", to: "/admin/errands", roles: ["front_desk"] },
   ];
 
   const visible = cards.filter((c) => isSuper || hasAnyAdminRole(c.roles));
