@@ -69,3 +69,6 @@ tools/
 
 # Vercel local build output
 .vercel/
+
+.vercel
+.env*

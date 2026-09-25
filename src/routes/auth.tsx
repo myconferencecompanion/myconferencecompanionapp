@@ -117,9 +117,6 @@ function AuthPage() {
                     placeholder="e.g. NSE-KITCHEN-3046"
                     autoCapitalize="characters"
                   />
-                  <p className="text-[11px] text-muted-foreground">
-                    Adds an admin role on this account. Leave blank for attendee access.
-                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? "Signing in…" : "Sign in"}
