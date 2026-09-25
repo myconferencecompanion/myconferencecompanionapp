@@ -1,7 +1,18 @@
 import { format, formatDistanceToNow, isToday, isTomorrow } from "date-fns";
 
+// Conference runs on West Africa Time; render all event times in WAT so every
+// attendee sees the same schedule regardless of where they travel from.
+const EVENT_TZ = "Africa/Lagos";
+
+const watTime = new Intl.DateTimeFormat("en-NG", {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+  timeZone: EVENT_TZ,
+});
+
 export function formatTime(d: string | Date) {
-  return format(new Date(d), "h:mm a");
+  return watTime.format(new Date(d));
 }
 
 export function formatDayLabel(d: string | Date) {
