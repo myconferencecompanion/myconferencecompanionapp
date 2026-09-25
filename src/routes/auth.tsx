@@ -1,5 +1,5 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, stashPendingRoleCode } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,15 @@ function AuthPage() {
   const [roleCode, setRoleCode] = useState("");
   const [signInRoleCode, setSignInRoleCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
-  if (!loading && user) {
-    throw redirect({ to: "/home" });
-  }
+  // Already signed in? Send users to the app (effect, not a thrown redirect —
+  // throwing during render crashes the route instead of navigating).
+  useEffect(() => {
+    if (!loading && user) {
+      void navigate({ to: "/home", replace: true });
+    }
+  }, [loading, user, navigate]);
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
@@ -40,6 +45,7 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Welcome back!");
+    void navigate({ to: "/home", replace: true });
   }
 
   async function signUp(e: React.FormEvent) {
