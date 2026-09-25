@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,14 @@ export const Route = createFileRoute("/_authenticated/schedule")({
 
 function SchedulePage() {
   const [view, setView] = useState<"sessions" | "speakers">("sessions");
+  // Deep links hit /schedule/$sessionId directly: render the child detail
+  // instead of the tabs + list when a session route is active.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showingChild = /^\/schedule\/[^/]+$/.test(pathname);
+
+  if (showingChild) {
+    return <Outlet />;
+  }
 
   return (
     <div>
