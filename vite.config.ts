@@ -1,21 +1,20 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { readFileSync } from "node:fs";
 import { resolve as resolvePath } from "node:path";
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import tsConfigPaths from "vite-tsconfig-paths";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 
 // Nitro bundles the Flutter `assets/` directory as server assets and imports
 // those JSON files via `raw:<file>` specifiers. Its raw plugin emits the file
 // text as `export default "<text>"` with moduleType "js" — but the virtual id
-// still ends in .json, and standard Vite ignores moduleType: vite:json then
-// JSON.parses the emitted *module code* and the build fails.
-// This plugin intercepts `raw:*.json` specifiers BEFORE Nitro's raw plugin
-// and serves the identical default-exported-string module under a virtual id
-// WITHOUT the .json suffix, so vite:json's filter never matches.
+// still ends in .json, and Vite's JSON plugin then JSON.parses the emitted
+// *module code* and the build fails. This plugin intercepts `raw:*.json`
+// specifiers before Nitro's raw plugin and serves the identical default-
+// exported-string module under a virtual id WITHOUT the .json suffix, so
+// vite:json never engages.
 function nitroRawJsonCompat() {
   const files = new Map<string, string>();
 
@@ -42,16 +41,23 @@ function nitroRawJsonCompat() {
 }
 
 export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  // Deploy target: Vercel (serverless SSR). Without this, the wrapper skips
-  // the nitro deploy plugin outside Lovable sandboxes and the built app has
-  // no server — every SSR route 404s on Vercel.
-  nitro: { preset: "vercel" },
-  vite: {
-    plugins: [nitroRawJsonCompat()],
-  },
+  plugins: [
+    nitroRawJsonCompat(),
+    tailwindcss(),
+    tsConfigPaths({ projects: ["./tsconfig.json"] }),
+    tanstackStart({
+      server: { entry: "server" },
+      importProtection: {
+        behavior: "error",
+        client: { files: ["**/server/**"], specifiers: ["server-only"] },
+      },
+      prerender: { enabled: false },
+    }),
+    // Must come AFTER tanstackStart (router plugin) but BEFORE nitro, so
+    // TanStack Start dev mode can resolve /@react-refresh.
+    react(),
+    // Deploy target: Vercel (serverless SSR). Pages own their headers; data
+    // comes from bundled JSON until Supabase env vars are added.
+    nitro({ preset: "vercel" }),
+  ],
 });
