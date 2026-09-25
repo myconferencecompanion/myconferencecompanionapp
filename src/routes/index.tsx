@@ -44,7 +44,7 @@ function LandingPage() {
             <span className="text-accent">{EVENT_CONFIG.year}</span>
           </h1>
           <p className="mt-3 max-w-sm text-base text-white/80">
-            {EVENT_CONFIG.tagline}. Your companion for two days of talks, ideas, and connections in Lagos.
+            {EVENT_CONFIG.tagline}. Your companion for five days of talks, ideas, and connections in Maiduguri.
           </p>
         </header>
 

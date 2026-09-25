@@ -1,7 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth, stashPendingRoleCode } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +19,6 @@ export const Route = createFileRoute("/auth")({
   }),
   component: AuthPage,
 });
-
 function AuthPage() {
   const { user, loading } = useAuth();
   const [email, setEmail] = useState("");
@@ -59,21 +57,6 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Account created! Check your inbox to confirm your email.");
-  }
-
-  async function signInWithGoogle() {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/home",
-    });
-    if (result.error) {
-      setBusy(false);
-      toast.error(result.error.message || "Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
-    // Tokens already set
-    window.location.href = "/home";
   }
 
   return (
@@ -159,22 +142,6 @@ function AuthPage() {
               </form>
             </TabsContent>
           </Tabs>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" />
-            or
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={signInWithGoogle}
-            disabled={busy}
-          >
-            <GoogleIcon />
-            Continue with Google
-          </Button>
         </Card>
 
         <p className="mt-6 text-center text-xs text-white/60">
@@ -185,16 +152,5 @@ function AuthPage() {
         </p>
       </div>
     </div>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.19 3.32v2.77h3.54c2.07-1.9 3.29-4.71 3.29-8.1Z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.77c-.98.66-2.23 1.06-3.74 1.06-2.87 0-5.3-1.94-6.17-4.55H2.18v2.86A11 11 0 0 0 12 23Z" />
-      <path fill="#FBBC05" d="M5.83 14.08A6.6 6.6 0 0 1 5.47 12c0-.72.12-1.42.36-2.08V7.06H2.18A11 11 0 0 0 1 12c0 1.77.42 3.44 1.18 4.94l3.65-2.86Z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.65 2.86C6.7 7.32 9.13 5.38 12 5.38Z" />
-    </svg>
   );
 }
