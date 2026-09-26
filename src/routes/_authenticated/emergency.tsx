@@ -51,7 +51,7 @@ const BASE_CONTACTS = [
 ] as const;
 
 function EmergencyPage() {
-  // Extra contacts from the backend, when configured (demo mode yields none).
+  // Extra contacts from the backend (the bundled list above is the baseline).
   const { data: extra = [] } = useQuery({
     queryKey: ["emergency-contacts"],
     queryFn: async () => {

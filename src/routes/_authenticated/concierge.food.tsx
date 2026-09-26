@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useGuestGate, GuestCta } from "@/lib/guest";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ type Cart = Record<string, number>;
 
 function FoodPage() {
   const { user } = useAuth();
+  const gate = useGuestGate();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [cart, setCart] = useState<Cart>({});
@@ -146,8 +148,12 @@ function FoodPage() {
             Complimentary from the organizers. Pick one item per section.
           </p>
         </div>
-        <Link to="/concierge/orders" className="text-xs font-medium text-primary">My orders →</Link>
+        {user && <Link to="/concierge/orders" className="text-xs font-medium text-primary">My orders →</Link>}
       </div>
+
+      {!user && (
+        <GuestCta message="Sign in to place a food order — the kitchen needs a name to prepare and hand over your meal." />
+      )}
 
       {categories.map((cat) => {
         const catItems = items.filter((i) => i.category_id === cat.id);
@@ -255,7 +261,7 @@ function FoodPage() {
               </p>
             </div>
             <SheetFooter className="mt-4">
-              <Button className="w-full" onClick={() => place.mutate()} disabled={place.isPending}>
+              <Button className="w-full" onClick={gate(() => place.mutate(), "the food order")} disabled={place.isPending}>
                 {place.isPending ? "Placing…" : "Place order"}
               </Button>
             </SheetFooter>

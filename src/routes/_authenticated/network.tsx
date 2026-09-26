@@ -51,12 +51,16 @@ function NetworkPage() {
   return (
     <div className="px-4 pt-5">
       <h2 className="text-xl font-bold">Network</h2>
-      <p className="text-sm text-muted-foreground">Connect with fellow attendees</p>
+      <p className="text-sm text-muted-foreground">
+        {user
+          ? "Connect with fellow attendees"
+          : "Sign in to meet fellow attendees — chat rooms are open to browse"}
+      </p>
 
       <Tabs defaultValue="rooms" className="mt-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className={`grid w-full ${user ? "grid-cols-2" : "grid-cols-1"}`}>
           <TabsTrigger value="rooms">Chat rooms</TabsTrigger>
-          <TabsTrigger value="people">People</TabsTrigger>
+          {user && <TabsTrigger value="people">People</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="rooms" className="mt-4 space-y-3">

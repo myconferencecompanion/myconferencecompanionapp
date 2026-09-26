@@ -8,8 +8,10 @@ import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EVENT_CONFIG } from "@/lib/event-config";
+import { requireUser } from "@/lib/guest";
 
 export const Route = createFileRoute("/_authenticated/chatbot")({
+  beforeLoad: () => requireUser(),
   component: ChatbotPage,
 });
 

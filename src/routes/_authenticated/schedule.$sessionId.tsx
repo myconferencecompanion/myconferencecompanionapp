@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useGuestGate } from "@/lib/guest";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ function SessionDetail() {
   const { sessionId } = Route.useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const gate = useGuestGate();
   const qc = useQueryClient();
 
   const { data: session, isLoading } = useQuery({
@@ -84,7 +86,13 @@ function SessionDetail() {
 
       <div className="space-y-5 px-4 py-5">
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={() => toggle.mutate()}>
+          <Button
+            className="flex-1"
+            onClick={gate(
+              () => toggle.mutate(),
+              "your personal agenda",
+            )}
+          >
             {agenda ? (
               <>
                 <BookmarkCheck className="h-4 w-4" /> In your agenda

@@ -1,9 +1,7 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EVENT_CONFIG } from "@/lib/event-config";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Sparkles, Users, ShieldAlert, MessageCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { isSupabaseConfigured } from "@/lib/supabase-stub";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -13,22 +11,28 @@ export const Route = createFileRoute("/")({
       { name: "description", content: `Schedule, speakers, venue map, networking, and live directions for ${EVENT_CONFIG.name} ${EVENT_CONFIG.year}.` },
     ],
   }),
-  beforeLoad: async () => {
-    if (!isSupabaseConfigured()) return; // demo mode: land here, browse via "Explore"
-    const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/home" });
-  },
   component: LandingPage,
 });
 
 const features = [
-  { icon: Calendar, label: "Personalized agenda" },
-  { icon: MapPin, label: "Live venue map" },
+  { icon: Calendar, label: "Full 7-day programme" },
+  { icon: MapPin, label: "Venue & city maps" },
   { icon: Users, label: "Attendee networking" },
   { icon: Sparkles, label: "AI conference assistant" },
   { icon: MessageCircle, label: "Group chat rooms" },
   { icon: ShieldAlert, label: "Emergency one-tap" },
 ];
+
+/** "7 days of talks" derived from EVENT_CONFIG so copy never goes stale. */
+function durationPhrase() {
+  const days = Math.max(
+    1,
+    Math.round(
+      (EVENT_CONFIG.end.getTime() - EVENT_CONFIG.start.getTime()) / 86_400_000,
+    ),
+  );
+  return `${days} days`;
+}
 
 function LandingPage() {
   return (
@@ -44,7 +48,8 @@ function LandingPage() {
             <span className="text-accent">{EVENT_CONFIG.year}</span>
           </h1>
           <p className="mt-3 max-w-sm text-base text-white/80">
-            {EVENT_CONFIG.tagline}. Your companion for five days of talks, ideas, and connections in Maiduguri.
+            {EVENT_CONFIG.tagline}. Your companion for {durationPhrase()} of talks, ideas, and connections at{" "}
+            {EVENT_CONFIG.venue.name}, Maiduguri.
           </p>
         </header>
 
@@ -58,25 +63,20 @@ function LandingPage() {
         </div>
 
         <div className="space-y-3">
-          {isSupabaseConfigured() ? (
-            <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
-              <Link to="/auth">Get started</Link>
-            </Button>
-          ) : (
-            <>
-              <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
-                <Link to="/home">Explore the app</Link>
-              </Button>
-              <p className="text-center text-xs text-white/60">
-                Demo mode — sign-in, orders and chats unlock with the live backend.
-              </p>
-            </>
-          )}
-          {isSupabaseConfigured() && (
-            <p className="text-center text-xs text-white/60">
-              Free for all confirmed attendees · Sign in with email
-            </p>
-          )}
+          <Button asChild size="lg" className="h-12 w-full bg-white text-primary hover:bg-white/90">
+            <Link to="/home">Explore the app</Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="h-12 w-full border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+          >
+            <Link to="/auth">Sign in</Link>
+          </Button>
+          <p className="text-center text-xs text-white/60">
+            Browse freely as a guest — sign in to build your agenda, order meals, and network.
+          </p>
         </div>
       </div>
     </div>

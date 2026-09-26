@@ -3,12 +3,14 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { requireUser } from "@/lib/guest";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft } from "lucide-react";
 import { formatRelative } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/concierge/orders")({
+  beforeLoad: () => requireUser(),
   component: OrdersPage,
 });
 

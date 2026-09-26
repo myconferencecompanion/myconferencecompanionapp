@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Megaphone } from "lucide-react";
 import { NsePageHeader } from "@/components/app/NsePageHeader";
 import { formatRelative } from "@/lib/format";
-import { isSupabaseConfigured } from "@/lib/supabase-stub";
 
 export const Route = createFileRoute("/_authenticated/announcements")({
   component: AnnouncementsPage,
@@ -44,9 +43,7 @@ function AnnouncementsPage() {
             </span>
             <p className="mt-3 text-sm font-bold">No announcements yet</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {isSupabaseConfigured()
-                ? "Official updates will appear here during the conference."
-                : "Connect the conference backend to receive live updates."}
+              Official updates will appear here during the conference.
             </p>
           </div>
         )}

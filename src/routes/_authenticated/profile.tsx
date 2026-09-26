@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { requireUser } from "@/lib/guest";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +16,12 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/profile")({
+  beforeLoad: () => requireUser(),
   component: ProfilePage,
 });
 
 function ProfilePage() {
-  const { user, demoMessage } = useAuth();
+  const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -74,9 +76,6 @@ function ProfilePage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
         <h1 className="text-xl font-bold">Your profile</h1>
-        {demoMessage && (
-          <p className="mt-1 text-xs text-white/70">{demoMessage}</p>
-        )}
         <p className="mt-1 text-sm text-white/70">How other attendees see you in the network.</p>
       </div>
 

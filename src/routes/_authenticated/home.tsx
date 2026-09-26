@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { GuestCta } from "@/lib/guest";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -32,7 +33,7 @@ const tools = [
 ] as const;
 
 function HomePage() {
-  const { user, demoMessage } = useAuth();
+  const { user } = useAuth();
 
   const { data: announcement } = useQuery({
     queryKey: ["latest-announcement"],
@@ -64,7 +65,7 @@ function HomePage() {
             />
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-medium uppercase tracking-wider text-white/65">
-                {demoMessage ? "DEMO" : "GOOD DAY"}
+                {user ? "GOOD DAY" : "WELCOME, GUEST"}
               </p>
               <p className="truncate text-lg font-extrabold leading-tight">{firstName}</p>
             </div>
@@ -80,6 +81,13 @@ function HomePage() {
       </section>
 
       <div className="space-y-4 px-4 pt-4">
+        {/* Guest call-to-action — visible only to signed-out visitors */}
+        {!user && (
+          <div className="px-0">
+            <GuestCta message="Create a free account to build your personal agenda, call ushers, order meals, and appear in the attendee directory." />
+          </div>
+        )}
+
         {/* Latest announcement card */}
         <Link to="/announcements" className="block">
           <div className="rounded-2xl bg-surface p-4 shadow-card">
