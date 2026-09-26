@@ -24,7 +24,7 @@ function AdminSessions() {
   const { data: sessions = [] } = useQuery({
     queryKey: ["admin-sessions"],
     queryFn: async () => {
-      const { data } = await supabase.from("sessions").select("*").order("starts_at");
+      const { data } = await supabase.from("sessions").select("*, session_speakers(speakers(id, name))").order("starts_at");
       return data ?? [];
     },
   });
@@ -41,11 +41,14 @@ function AdminSessions() {
   });
 
   return (
-    <AdminListShell<Session>
+    <AdminListShell<Session & { session_speakers?: { speakers: { id: string; name: string } | null }[] }>
       title="Sessions"
       items={sessions}
       rowTitle={(s) => s.title}
-      rowSubtitle={(s) => `Day ${s.day} · ${formatTimeRange(s.starts_at, s.ends_at)}${s.room ? " · " + s.room : ""}`}
+      rowSubtitle={(s) => {
+        const speakers = (s.session_speakers ?? []).map((ss) => ss.speakers?.name).filter(Boolean).join(", ");
+        return `Day ${s.day} · ${formatTimeRange(s.starts_at, s.ends_at)}${s.room ? " · " + s.room : ""}${speakers ? " · " + speakers : ""}`;
+      }}
       onDelete={(s) => del.mutateAsync(s.id)}
       renderForm={(close, editing) => <SessionForm close={close} editing={editing} />}
     />
@@ -63,17 +66,34 @@ function SessionForm({ close, editing }: { close: () => void; editing: Session |
   const [form, setForm] = useState({
     title: "", description: "", day: 1, starts_at: "", ends_at: "", room: "", track: "", session_type: "talk",
   });
+  const [speakerIds, setSpeakerIds] = useState<string[]>([]);
+
+  const { data: speakers = [] } = useQuery({
+    queryKey: ["admin-speakers"],
+    queryFn: async () => {
+      const { data } = await supabase.from("speakers").select("id, name").order("name");
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
-    if (editing) setForm({
-      title: editing.title,
-      description: editing.description ?? "",
-      day: editing.day,
-      starts_at: toLocalInput(editing.starts_at),
-      ends_at: toLocalInput(editing.ends_at),
-      room: editing.room ?? "",
-      track: editing.track ?? "",
-      session_type: editing.session_type,
-    });
+    if (editing) {
+      setForm({
+        title: editing.title,
+        description: editing.description ?? "",
+        day: editing.day,
+        starts_at: toLocalInput(editing.starts_at),
+        ends_at: toLocalInput(editing.ends_at),
+        room: editing.room ?? "",
+        track: editing.track ?? "",
+        session_type: editing.session_type,
+      });
+      void supabase
+        .from("session_speakers")
+        .select("speaker_id")
+        .eq("session_id", editing.id)
+        .then(({ data }) => setSpeakerIds((data ?? []).map((r) => r.speaker_id)));
+    }
   }, [editing]);
 
   const save = useMutation({
@@ -83,12 +103,22 @@ function SessionForm({ close, editing }: { close: () => void; editing: Session |
         starts_at: new Date(form.starts_at).toISOString(),
         ends_at: new Date(form.ends_at).toISOString(),
       };
+      let sessionId = editing?.id;
       if (editing) {
         const { error } = await supabase.from("sessions").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("sessions").insert(payload);
+        const { data: inserted, error } = await supabase.from("sessions").insert(payload).select("id").single();
         if (error) throw error;
+        sessionId = inserted!.id;
+      }
+      // Sync the speaker lineup.
+      await supabase.from("session_speakers").delete().eq("session_id", sessionId!);
+      if (speakerIds.length > 0) {
+        const { error: linkErr } = await supabase
+          .from("session_speakers")
+          .insert(speakerIds.map((speaker_id) => ({ session_id: sessionId!, speaker_id })));
+        if (linkErr) throw linkErr;
       }
     },
     onSuccess: () => {
@@ -99,6 +129,10 @@ function SessionForm({ close, editing }: { close: () => void; editing: Session |
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  function toggleSpeaker(id: string) {
+    setSpeakerIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  }
 
   return (
     <div className="space-y-3">
@@ -119,6 +153,29 @@ function SessionForm({ close, editing }: { close: () => void; editing: Session |
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1"><Label>Room</Label><Input value={form.room} onChange={(e) => setForm({ ...form, room: e.target.value })} /></div>
         <div className="space-y-1"><Label>Track</Label><Input value={form.track} onChange={(e) => setForm({ ...form, track: e.target.value })} /></div>
+      </div>
+      <div className="space-y-1.5">
+        <Label>Speakers (tap to include)</Label>
+        {speakers.length === 0 && (
+          <p className="text-xs text-muted-foreground">No speakers yet — add them on the Speakers tab first.</p>
+        )}
+        <div className="flex flex-wrap gap-1.5">
+          {speakers.map((sp) => {
+            const on = speakerIds.includes(sp.id);
+            return (
+              <button
+                key={sp.id}
+                type="button"
+                onClick={() => toggleSpeaker(sp.id)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-muted-foreground"
+                }`}
+              >
+                {on ? "✓ " : ""}{sp.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
       <Button className="w-full" onClick={() => save.mutate()} disabled={save.isPending || !form.title || !form.starts_at || !form.ends_at}>
         {save.isPending ? "Saving…" : "Save"}

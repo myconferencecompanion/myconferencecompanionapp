@@ -84,7 +84,14 @@ function AnnouncementForm({ close, editing }: { close: () => void; editing: Ann 
       <div className="space-y-1"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
       <div className="space-y-1"><Label>Body</Label><Textarea rows={4} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></div>
       <div className="space-y-1"><Label>Priority</Label>
-        <Input value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} placeholder="normal or high" />
+        <select
+          value={form.priority}
+          onChange={(e) => setForm({ ...form, priority: e.target.value })}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="normal">Normal — appears in the app</option>
+          <option value="high">High — urgent, red badge on home</option>
+        </select>
       </div>
       <Button className="w-full" onClick={() => save.mutate()} disabled={save.isPending || !form.title || !form.body}>
         {save.isPending ? "Saving…" : "Save"}
