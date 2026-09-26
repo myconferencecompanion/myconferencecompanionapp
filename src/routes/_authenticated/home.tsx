@@ -7,8 +7,6 @@ import {
   ConciergeBell,
   Compass,
   HeartPulse,
-  Hotel,
-  Map,
   Megaphone,
   Users,
   Sparkles,
@@ -19,14 +17,13 @@ export const Route = createFileRoute("/_authenticated/home")({
   component: HomePage,
 });
 
-/* Mirrors _tools in the Flutter HomeScreen — same tiles, same tints. */
+/* Homepage quick actions. City stuff (hotels, nearby, transport, maps)
+   lives in one place: the Maiduguri guide — no duplicate tiles here. */
 const tools = [
   { to: "/schedule", label: "Schedule", icon: Calendar, tint: "text-primary", bg: "bg-primary-soft" },
   { to: "/concierge", label: "Concierge", icon: ConciergeBell, tint: "text-warning-foreground", bg: "bg-accent-soft" },
   { to: "/network", label: "Network", icon: Users, tint: "text-success", bg: "bg-success-soft" },
-  { to: "/accommodation", label: "Hotels", icon: Hotel, tint: "text-warning-foreground", bg: "bg-accent-soft" },
   { to: "/maidguide", label: "Maiduguri", icon: Compass, tint: "text-primary", bg: "bg-primary-soft" },
-  { to: "/map", label: "Venue map", icon: Map, tint: "text-success", bg: "bg-success-soft" },
   { to: "/announcements", label: "Updates", icon: Megaphone, tint: "text-primary", bg: "bg-primary-soft" },
   { to: "/emergency", label: "Emergency", icon: HeartPulse, tint: "text-destructive", bg: "bg-destructive-soft" },
 ] as const;
