@@ -10,6 +10,14 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { EVENT_CONFIG } from "@/lib/event-config";
 
+/**
+ * Real provider status is baked in at build time (see vite.config.ts):
+ * the button renders only when a Google OAuth client is actually connected,
+ * so we never show a sign-in option that can't work.
+ */
+declare const __GOOGLE_OAUTH__: boolean;
+const GOOGLE_ENABLED = __GOOGLE_OAUTH__;
+
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -63,6 +71,24 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Account created! Check your inbox to confirm your email.");
+  }
+
+  async function signInWithGoogle() {
+    setBusy(true);
+    if (roleCode.trim() || signInRoleCode.trim()) {
+      stashPendingRoleCode(roleCode.trim() || signInRoleCode.trim());
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      setBusy(false);
+      toast.error(error.message);
+    }
+    // On success the browser navigates away to Google; nothing else to do.
   }
 
   return (
@@ -148,6 +174,31 @@ function AuthPage() {
               </form>
             </TabsContent>
           </Tabs>
+
+          {GOOGLE_ENABLED && (
+            <>
+              <div className="my-4 flex items-center gap-3">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">or</span>
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={busy}
+                onClick={() => void signInWithGoogle()}
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                  <path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.7-.2-2.5H12v4.7h6.5c-.3 1.5-1.1 2.8-2.4 3.6v3h3.9c2.2-2.1 3.5-5.2 3.5-8.8z" />
+                  <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.7-4.9H1.3v3.1C3.3 21.6 7.3 24 12 24z" />
+                  <path fill="#FBBC05" d="M5.3 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4v-3H1.3C.5 8.2 0 10 0 12s.5 3.8 1.3 5.4l4-3z" />
+                  <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8L20 3.1C17.9 1.2 15.2 0 12 0 7.3 0 3.3 2.4 1.3 6.6l4 3.1C6.3 6.9 8.9 4.8 12 4.8z" />
+                </svg>
+                Continue with Google
+              </Button>
+            </>
+          )}
         </Card>
 
         <p className="mt-6 text-center text-xs text-white/60">

@@ -40,7 +40,13 @@ function nitroRawJsonCompat() {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // Build-time flag: show "Continue with Google" only when a Google OAuth
+  // client is actually configured (set VITE_GOOGLE_OAUTH_ENABLED=1 in the
+  // environment / on Vercel once the provider is connected in Supabase).
+  define: {
+    __GOOGLE_OAUTH__: JSON.stringify(process.env.VITE_GOOGLE_OAUTH_ENABLED === "1"),
+  },
   plugins: [
     nitroRawJsonCompat(),
     tailwindcss(),
@@ -60,4 +66,4 @@ export default defineConfig({
     // comes from bundled JSON until Supabase env vars are added.
     nitro({ preset: "vercel" }),
   ],
-});
+}));
