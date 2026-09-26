@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGoogleMaps } from "@/lib/google-maps";
+import { OsmOutdoorMap } from "@/components/app/OsmOutdoorMap";
+import "leaflet/dist/leaflet.css";
 import { EVENT_CONFIG } from "@/lib/event-config";
 import { Card } from "@/components/ui/card";
-import { MapPin, ExternalLink } from "lucide-react";
-import { VENUE_DATA, HOTELS } from "@/lib/reference";
+import { MapPin } from "lucide-react";
 
 type Search = { room?: string };
 
@@ -92,7 +92,7 @@ function MapPage() {
         </TabsContent>
 
         <TabsContent value="outdoor" className="mt-4">
-          <OutdoorMap />
+          <OsmOutdoorMap />
           <Card className="mt-3 border-0 p-4 shadow-card">
             <p className="text-sm font-semibold">{EVENT_CONFIG.venue.name}</p>
             <p className="mt-1 text-xs text-muted-foreground">{EVENT_CONFIG.venue.address}</p>
@@ -104,98 +104,6 @@ function MapPage() {
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
-
-const POI_PIN_TINTS: Record<string, string> = {
-  Airport: "bg-primary",
-  Security: "bg-destructive",
-  Government: "bg-primary",
-  Culture: "bg-accent",
-  Hospital: "bg-success",
-  Restaurant: "bg-accent",
-  Pharmacy: "bg-success",
-  ATM: "bg-primary",
-  Shopping: "bg-accent",
-  "Spouses visit": "bg-accent",
-};
-
-function poiPinTint(category: string) {
-  return POI_PIN_TINTS[category] ?? "bg-muted-foreground";
-}
-
-function OutdoorMap() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { ready, error } = useGoogleMaps();
-
-  useEffect(() => {
-    if (!ready || !ref.current) return;
-    const map = new window.google.maps.Map(ref.current, {
-      center: { lat: EVENT_CONFIG.venue.latitude, lng: EVENT_CONFIG.venue.longitude },
-      zoom: 13,
-      disableDefaultUI: false,
-      zoomControl: true,
-      streetViewControl: false,
-      mapTypeControl: false,
-      fullscreenControl: false,
-    });
-    new window.google.maps.Marker({
-      position: { lat: EVENT_CONFIG.venue.latitude, lng: EVENT_CONFIG.venue.longitude },
-      map,
-      title: EVENT_CONFIG.venue.name,
-    });
-    // Nearby POIs
-    for (const poi of VENUE_DATA.nearby) {
-      if (poi.latitude == null || poi.longitude == null) continue;
-      new window.google.maps.Marker({
-        position: { lat: poi.latitude, lng: poi.longitude },
-        map,
-        title: `${poi.name} (${poi.category})`,
-      });
-    }
-    // Geocoded hotels
-    for (const h of HOTELS) {
-      if (h.latitude == null || h.longitude == null) continue;
-      new window.google.maps.Marker({
-        position: { lat: h.latitude, lng: h.longitude },
-        map,
-        title: `${h.name} — delegate hotel`,
-        icon: {
-          path: window.google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-          scale: 5.5,
-          fillColor: "#c9a227",
-          fillOpacity: 1,
-          strokeColor: "#1f2a56",
-          strokeWeight: 2,
-        },
-      });
-    }
-  }, [ready]);
-
-  if (error) {
-    return (
-      <div className="space-y-3">
-        <Card className="border-0 p-6 text-center shadow-card">
-          <p className="text-sm text-muted-foreground">
-            Interactive map unavailable ({error}).
-          </p>
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${EVENT_CONFIG.venue.latitude},${EVENT_CONFIG.venue.longitude}`}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary"
-          >
-            Open venue in Google Maps <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <Card className="overflow-hidden border-0 shadow-card">
-      <div ref={ref} className="aspect-[4/5] w-full bg-muted" />
-    </Card>
   );
 }
 
