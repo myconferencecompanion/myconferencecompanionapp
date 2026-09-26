@@ -12,7 +12,6 @@ import { EVENT_CONFIG } from "@/lib/event-config";
 import { BookmarkPlus, BookmarkCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { useGuestGate } from "@/lib/guest";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -72,7 +71,6 @@ function SessionsList() {
   const [day, setDay] = useState<number>(1);
   const [track, setTrack] = useState<string>("All");
   const { user } = useAuth();
-  const gate = useGuestGate();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -171,7 +169,10 @@ function SessionsList() {
                     size="icon"
                     variant="ghost"
                     className="h-7 w-7 shrink-0"
-                    onClick={gate(() => toggleAgenda.mutate(s.id), "your personal agenda")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleAgenda.mutate(s.id);
+                    }}
                   >
                     {agendaSet.has(s.id) ? (
                       <BookmarkCheck className="h-4 w-4 text-primary" />

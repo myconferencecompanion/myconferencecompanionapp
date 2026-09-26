@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { useGuestGate, GuestCta } from "@/lib/guest";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +27,6 @@ const REASONS = [
 
 function UsherPage() {
   const { user } = useAuth();
-  const gate = useGuestGate();
   const qc = useQueryClient();
   const [reason, setReason] = useState(REASONS[0]);
   const [note, setNote] = useState("");
@@ -92,10 +90,6 @@ function UsherPage() {
         <p className="text-sm text-muted-foreground">An event staffer will come to you.</p>
       </div>
 
-      {!user && (
-        <GuestCta message="Sign in to call an usher — we need your details so the staffer can find you on site." />
-      )}
-
       <Card className="space-y-3 border-0 p-4 shadow-card">
         <div className="space-y-1">
           <Label>Reason</Label>
@@ -115,7 +109,7 @@ function UsherPage() {
           <Label>Note (optional)</Label>
           <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Anything we should know" />
         </div>
-        <Button onClick={gate(() => submit.mutate(), "usher calls")} disabled={submit.isPending} className="w-full">
+        <Button onClick={() => submit.mutate()} disabled={submit.isPending} className="w-full">
           <BellRing className="h-4 w-4" /> {submit.isPending ? "Sending…" : "Call an usher"}
         </Button>
       </Card>

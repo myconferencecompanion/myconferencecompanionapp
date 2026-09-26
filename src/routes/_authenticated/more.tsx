@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/auth";
-import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ShieldAlert,
@@ -35,11 +34,11 @@ const items = [
   { to: "/transport", label: "Transport", icon: Bus },
   { to: "/faq", label: "Conference Guide (FAQ)", icon: HelpCircle },
   { to: "/about", label: "About NSE", icon: Info },
-  { to: "/profile", label: "Edit profile", icon: User, memberOnly: true },
+  { to: "/profile", label: "Edit profile", icon: User },
 ] as const;
 
 function MorePage() {
-  const { isAdmin, user, signOut, refreshRoles } = useAuth();
+  const { isAdmin, signOut, refreshRoles } = useAuth();
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -79,9 +78,7 @@ function MorePage() {
 
       <Card className="overflow-hidden border-0 shadow-card">
         <ul className="divide-y divide-border">
-          {items
-            .filter((it) => !("memberOnly" in it) || user)
-            .map(({ to, label, icon: Icon }) => (
+          {items.map(({ to, label, icon: Icon }) => (
             <li key={to}>
               <Link to={to} className="flex items-center gap-3 px-4 py-3.5 transition active:bg-muted">
                 <Icon className="h-5 w-5 text-muted-foreground" />
@@ -89,16 +86,7 @@ function MorePage() {
                 <span className="text-muted-foreground">›</span>
               </Link>
             </li>
-            ))}
-          {!user && (
-            <li>
-              <Link to="/auth" className="flex items-center gap-3 px-4 py-3.5 transition active:bg-muted">
-                <LogIn className="h-5 w-5 text-primary" />
-                <span className="flex-1 text-sm font-medium text-primary">Sign in / Create account</span>
-                <span className="text-muted-foreground">›</span>
-              </Link>
-            </li>
-          )}
+          ))}
           {isAdmin && (
             <li>
               <Link to="/admin" className="flex items-center gap-3 px-4 py-3.5 transition active:bg-muted">
@@ -108,19 +96,17 @@ function MorePage() {
               </Link>
             </li>
           )}
-          {user && (
-            <li>
-              <button
-                type="button"
-                onClick={() => setCodeOpen(true)}
-                className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition active:bg-muted"
-              >
-                <KeyRound className="h-5 w-5 text-muted-foreground" />
-                <span className="flex-1 text-sm font-medium">Redeem role code</span>
-                <span className="text-muted-foreground">›</span>
-              </button>
-            </li>
-          )}
+          <li>
+            <button
+              type="button"
+              onClick={() => setCodeOpen(true)}
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition active:bg-muted"
+            >
+              <KeyRound className="h-5 w-5 text-muted-foreground" />
+              <span className="flex-1 text-sm font-medium">Redeem role code</span>
+              <span className="text-muted-foreground">›</span>
+            </button>
+          </li>
         </ul>
       </Card>
 
@@ -150,24 +136,16 @@ function MorePage() {
         </DialogContent>
       </Dialog>
 
-      {user ? (
-        <Button
-          variant="outline"
-          className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-          onClick={async () => {
-            await signOut();
-            toast.success("Signed out");
-          }}
-        >
-          <LogOut className="h-4 w-4" /> Sign out
-        </Button>
-      ) : (
-        <Button asChild variant="outline" className="w-full">
-          <Link to="/auth">
-            <LogIn className="h-4 w-4" /> Sign in
-          </Link>
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+        onClick={async () => {
+          await signOut();
+          toast.success("Signed out");
+        }}
+      >
+        <LogOut className="h-4 w-4" /> Sign out
+      </Button>
 
 
       <p className="pt-4 text-center text-xs text-muted-foreground">

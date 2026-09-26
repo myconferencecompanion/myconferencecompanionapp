@@ -3,14 +3,12 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { requireUser } from "@/lib/guest";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatRelative } from "@/lib/format";
 import { ConciergeBell, UtensilsCrossed } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/waitlist")({
-  beforeLoad: () => requireUser(),
   component: WaitlistPage,
 });
 

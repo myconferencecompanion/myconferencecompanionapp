@@ -3,14 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { requireUser } from "@/lib/guest";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Send, Hash } from "lucide-react";
 import { initials, formatTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/network/room/$roomId")({
-  beforeLoad: () => requireUser(),
   component: RoomChatPage,
 });
 
