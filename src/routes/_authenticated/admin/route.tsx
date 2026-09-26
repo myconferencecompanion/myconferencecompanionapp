@@ -28,7 +28,8 @@ type AdminTab = {
     | "/admin/announcements"
     | "/admin/menu"
     | "/admin/orders"
-    | "/admin/ushers";
+    | "/admin/ushers"
+    | "/admin/staff";
   label: string;
   exact?: boolean;
   // Sub-roles that may see this tab. super_admin always sees everything.
@@ -45,6 +46,7 @@ const tabs: ReadonlyArray<AdminTab> = [
   { to: "/admin/ushers", label: "Ushers", roles: ["front_desk"] },
   { to: "/admin/emergency", label: "Emergency", roles: ["logistics"] },
   { to: "/admin/announcements", label: "Announcements", roles: ["comms"] },
+  { to: "/admin/staff", label: "Staff & People", roles: ["super_admin", "admin"] },
 ];
 
 const ROLE_LABEL: Record<AppRole, string> = {
