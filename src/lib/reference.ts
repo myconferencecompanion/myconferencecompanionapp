@@ -129,7 +129,15 @@ export function faqsByCategory(): Map<string, FaqItem[]> {
 /** Minimum numeric nightly rate across a hotel's room list, in naira. */
 export function hotelMinRate(hotel: Hotel): number | null {
   const nums = hotel.rooms
-    .map((r) => Number(String(r.rate).replace(/[^0-9.]/g, "")))
+    .map((r) => {
+      // Take the FIRST standalone amount in the rate string. Joining all digits
+      // mangles ranges and annotations: "N21,829 - N30,409" -> 2182930409,
+      // "N60,000 (15% discount)" -> 6000015.
+      const matches = String(r.rate).match(/\d[\d,]*(?:\.\d+)?/g);
+      if (!matches) return NaN;
+      const amounts = matches.map((s) => Number(s.replace(/,/g, ""))).filter((n) => n >= 1000);
+      return amounts.length ? amounts[0] : Number(matches[0].replace(/,/g, ""));
+    })
     .filter((n) => Number.isFinite(n) && n > 0);
   return nums.length ? Math.min(...nums) : null;
 }

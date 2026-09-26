@@ -12,6 +12,7 @@ import { type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { RouteProgress } from "@/components/app/RouteProgress";
 import { EVENT_CONFIG } from "@/lib/event-config";
 
 function NotFoundComponent() {
@@ -116,6 +117,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <RouteProgress />
         <Outlet />
         <Toaster richColors position="top-center" />
       </AuthProvider>

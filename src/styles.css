@@ -220,3 +220,13 @@
       oklch(33% 0.062 159.7 / 0.12));
   }
 }
+
+/* Route transition progress bar */
+@keyframes route-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.animate-route-progress {
+  animation: route-progress 1s ease-in-out infinite;
+}
