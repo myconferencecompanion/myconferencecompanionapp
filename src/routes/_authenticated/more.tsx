@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ const items = [
 
 function MorePage() {
   const { isAdmin, signOut, refreshRoles } = useAuth();
+  const navigate = useNavigate();
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -138,11 +139,13 @@ function MorePage() {
 
       <Button
         variant="outline"
-        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-        onClick={async () => {
-          await signOut();
-          toast.success("Signed out");
-        }}
+        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"          onClick={() => {
+            // Fire-and-forget then navigate immediately — never leave the user
+            // stranded on a member page if the auth call hangs.
+            void signOut();
+            toast.success("Signed out");
+            void navigate({ to: "/auth", replace: true });
+          }}
       >
         <LogOut className="h-4 w-4" /> Sign out
       </Button>

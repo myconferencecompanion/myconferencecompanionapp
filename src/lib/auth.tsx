@@ -108,6 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     signOut: async () => {
       await supabase.auth.signOut();
+      // Drop every cached query so signed-out state never shows member data.
+      queryClient.clear();
     },
   };
 

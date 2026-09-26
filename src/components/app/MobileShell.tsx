@@ -10,7 +10,15 @@ import { FloatingChatbot } from "./FloatingChatbot";
 export function MobileShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[640px] flex-col bg-background">
-      <main className="flex-1 pb-24">{children}</main>
+      {/* Clearance for the fixed bottom nav (incl. iPhone safe area) plus
+          breathing room, so page-bottom actions like "Sign out" are never
+          covered by the tab bar. */}
+      <main
+        className="flex-1"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6.5rem)" }}
+      >
+        {children}
+      </main>
       <FloatingChatbot />
       <BottomTabs />
     </div>
