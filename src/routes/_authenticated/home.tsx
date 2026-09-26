@@ -47,7 +47,8 @@ function HomePage() {
     },
   });
 
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] ?? "Delegate";
+  // Full display name (first names alone look wrong for "Engr. Musa Ibrahim Musa").
+  const firstName = user?.user_metadata?.full_name ?? "Delegate";
   const countdown = countdownLabel();
 
   return (
