@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth, type AppRole } from "@/lib/auth";
 import { formatRelative } from "@/lib/format";
+import { EVENT_CONFIG } from "@/lib/event-config";
 import {
   Calendar,
   Mic,
@@ -99,13 +100,14 @@ function subRolesOf(roles: AppRole[]): SubRole[] {
 /* ------------------------------ route component -------------------------- */
 
 function AdminOverview() {
-  const { roles, hasAnyAdminRole } = useAuth();
+  const { roles } = useAuth();
   const isSuper = roles.includes("super_admin");
   const mySubRoles = subRolesOf(roles);
   const [active, setActive] = useState<SubRole>(mySubRoles[0] ?? "front_desk");
 
-  // Super admin (or plain admin without a sub-role) gets the full overview.
-  if (!hasAnyAdminRole(SUB_ROLE_ORDER)) {
+  // Only staff with an actual sub-role get a single ControlCenter; super
+  // admins and plain admins get the full command overview.
+  if (mySubRoles.length === 0) {
     return <SuperOverview isSuper={isSuper} />;
   }
 
@@ -133,57 +135,250 @@ function AdminOverview() {
 
 /* --------------------------- super admin overview ------------------------ */
 
-type CardDef = {
-  label: string;
-  icon: typeof Calendar;
-  value: number | "—";
-  to: "/admin/sessions" | "/admin/speakers" | "/admin/accommodations" | "/admin/emergency" | "/admin/announcements" | "/admin/menu" | "/admin/orders" | "/admin/ushers";
-  roles: AppRole[];
+type AdminStats = {
+  attendees: number;
+  networkingOptIn: number;
+  signupsByDay: { date: string; count: number }[];
+  sessionsByDay: { day: number; count: number }[];
+  ordersByStatus: { pending: number; preparing: number; ready: number; delivered: number };
+  ushersByStatus: { pending: number; acknowledged: number; resolved: number };
+  announcements: number;
+  sessions: number;
+  speakers: number;
+  hotels: number;
 };
 
+function useAdminStats() {
+  const qc = useQueryClient();
+  const query = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async (): Promise<AdminStats> => {
+      const [
+        profilesRes, sessionsRes, ordPending, ordPreparing, ordReady, ordDelivered,
+        ushPending, ushAck, ushResolved, annRes, spkRes, hotRes,
+      ] = await Promise.all([
+        supabase.from("profiles").select("id, created_at, networking_opt_in").limit(2000),
+        supabase.from("sessions").select("id, day"),
+        supabase.from("food_orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("food_orders").select("id", { count: "exact", head: true }).eq("status", "preparing"),
+        supabase.from("food_orders").select("id", { count: "exact", head: true }).eq("status", "ready"),
+        supabase.from("food_orders").select("id", { count: "exact", head: true }).eq("status", "delivered"),
+        supabase.from("usher_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("usher_requests").select("id", { count: "exact", head: true }).eq("status", "acknowledged"),
+        supabase.from("usher_requests").select("id", { count: "exact", head: true }).eq("status", "resolved"),
+        supabase.from("announcements").select("id", { count: "exact", head: true }),
+        supabase.from("speakers").select("id", { count: "exact", head: true }),
+        supabase.from("accommodations").select("id", { count: "exact", head: true }),
+      ]);
+
+      const profiles = (profilesRes.data ?? []) as { id: string; created_at: string; networking_opt_in: boolean }[];
+      const sessions = (sessionsRes.data ?? []) as { id: string; day: number }[];
+
+      // Signups over the last 14 days (inclusive of today).
+      const signupsByDay: { date: string; count: number }[] = [];
+      const today = new Date();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const count = profiles.filter((p) => (p.created_at || "").slice(0, 10) === key).length;
+        signupsByDay.push({ date: key, count });
+      }
+
+      const sessionsByDay = [1, 2, 3, 4, 5, 6, 7].map((day) => ({
+        day,
+        count: sessions.filter((s) => s.day === day).length,
+      }));
+
+      return {
+        attendees: profiles.length,
+        networkingOptIn: profiles.filter((p) => p.networking_opt_in).length,
+        signupsByDay,
+        sessionsByDay,
+        ordersByStatus: {
+          pending: ordPending.count ?? 0,
+          preparing: ordPreparing.count ?? 0,
+          ready: ordReady.count ?? 0,
+          delivered: ordDelivered.count ?? 0,
+        },
+        ushersByStatus: {
+          pending: ushPending.count ?? 0,
+          acknowledged: ushAck.count ?? 0,
+          resolved: ushResolved.count ?? 0,
+        },
+        announcements: annRes.count ?? 0,
+        sessions: sessions.length,
+        speakers: spkRes.count ?? 0,
+        hotels: hotRes.count ?? 0,
+      };
+    },
+    refetchInterval: 60_000,
+  });
+
+  // Live updates: any change to ops tables refreshes the dashboard.
+  useEffect(() => {
+    const ch = supabase
+      .channel("admin-stats")
+      .on("postgres_changes", { event: "*", schema: "public", table: "food_orders" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-stats"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "usher_requests" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-stats"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin-stats"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+
+  return query;
+}
+
+function daysToGo(): number {
+  const start = EVENT_CONFIG.start;
+  const now = new Date();
+  return Math.max(
+    0,
+    Math.ceil(
+      (new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime() -
+        new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86_400_000,
+    ),
+  );
+}
+
 function SuperOverview({ isSuper }: { isSuper: boolean }) {
-  const { roles, hasAnyAdminRole } = useAuth();
-  const { data: counts } = useAdminCounts();
+  const { data: s } = useAdminStats();
+  const { user } = useAuth();
 
-  const cards: CardDef[] = [
-    { label: "Sessions", icon: Calendar, value: counts?.sessions ?? "—", to: "/admin/sessions", roles: ["program"] },
-    { label: "Speakers", icon: Mic, value: counts?.speakers ?? "—", to: "/admin/speakers", roles: ["program"] },
-    { label: "Hotels", icon: Hotel, value: counts?.accommodations ?? "—", to: "/admin/accommodations", roles: ["logistics"] },
-    { label: "Emergency", icon: Phone, value: counts?.emergency ?? "—", to: "/admin/emergency", roles: ["logistics"] },
-    { label: "Announcements", icon: Megaphone, value: counts?.announcements ?? "—", to: "/admin/announcements", roles: ["comms"] },
-    { label: "Menu items", icon: UtensilsCrossed, value: counts?.menu ?? "—", to: "/admin/menu", roles: ["kitchen"] },
-    { label: "Open orders", icon: ShoppingBag, value: counts?.openOrders ?? "—", to: "/admin/orders", roles: ["kitchen"] },
-    { label: "Usher queue", icon: ConciergeBell, value: counts?.openUshers ?? "—", to: "/admin/ushers", roles: ["front_desk"] },
-  ];
-
-  const visible = cards.filter((c) => isSuper || hasAnyAdminRole(c.roles));
+  const firstName = (user?.user_metadata?.full_name ?? "Command").split(" ").slice(0, 2).join(" ");
+  const openOrders = s ? s.ordersByStatus.pending + s.ordersByStatus.preparing + s.ordersByStatus.ready : 0;
+  const openUshers = s ? s.ushersByStatus.pending + s.ushersByStatus.acknowledged : 0;
+  const maxSignups = Math.max(1, ...(s?.signupsByDay ?? []).map((d) => d.count));
+  const maxSessions = Math.max(1, ...(s?.sessionsByDay ?? []).map((d) => d.count));
 
   return (
-    <div>
-      <h2 className="mb-3 text-base font-semibold">At a glance</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {isSuper && (
-          <Card className="col-span-2 border-0 p-4 shadow-card">
-            <Users className="h-5 w-5 text-primary" />
-            <p className="mt-2 text-2xl font-bold">{counts?.attendees ?? "—"}</p>
-            <p className="text-xs text-muted-foreground">Total attendees</p>
-          </Card>
-        )}
-        {visible.map(({ label, icon: Icon, value, to }) => (
-          <Link key={label} to={to}>
-            <Card className="border-0 p-4 shadow-card transition active:scale-[0.98]">
-              <Icon className="h-5 w-5 text-primary" />
-              <p className="mt-2 text-2xl font-bold">{value}</p>
-              <p className="text-xs text-muted-foreground">{label}</p>
-            </Card>
-          </Link>
-        ))}
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="rounded-2xl bg-brand-gradient p-4 text-white shadow-elevated">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+          Command Centre
+        </p>
+        <h2 className="mt-0.5 text-lg font-bold">Good day, {firstName}</h2>
+        <p className="mt-0.5 text-xs text-white/70">
+          {EVENT_CONFIG.name} {EVENT_CONFIG.year} · {daysToGo()} days to go · ICC Maiduguri
+        </p>
       </div>
-      <p className="mt-6 text-xs text-muted-foreground">
-        {isSuper
-          ? "Super Admin: you can manage every section — each role also has a focused control center under its tab."
-          : "You're seeing only the sections assigned to your role. Tap a card to manage it."}
-      </p>
+
+      {/* Live ops strip */}
+      <div className="grid grid-cols-2 gap-3">
+        <Link to="/admin/ushers">
+          <Card className="border-0 p-4 shadow-card transition active:scale-[0.98]">
+            <div className="flex items-center gap-1.5">
+              <ConciergeBell className="h-4 w-4 text-warning-foreground" />
+              {openUshers > 0 && <span className="h-2 w-2 animate-pulse rounded-full bg-destructive" />}
+            </div>
+            <p className="mt-2 text-2xl font-bold">{openUshers}</p>
+            <p className="text-xs text-muted-foreground">Usher queue open</p>
+          </Card>
+        </Link>
+        <Link to="/admin/orders">
+          <Card className="border-0 p-4 shadow-card transition active:scale-[0.98]">
+            <div className="flex items-center gap-1.5">
+              <ShoppingBag className="h-4 w-4 text-warning-foreground" />
+              {openOrders > 0 && <span className="h-2 w-2 animate-pulse rounded-full bg-destructive" />}
+            </div>
+            <p className="mt-2 text-2xl font-bold">{openOrders}</p>
+            <p className="text-xs text-muted-foreground">Orders in flight</p>
+          </Card>
+        </Link>
+        <Card className="border-0 p-4 shadow-card">
+          <Users className="h-4 w-4 text-primary" />
+          <p className="mt-2 text-2xl font-bold">{s?.attendees ?? "—"}</p>
+          <p className="text-xs text-muted-foreground">Registered attendees</p>
+        </Card>
+        <Link to="/admin/announcements">
+          <Card className="border-0 p-4 shadow-card transition active:scale-[0.98]">
+            <Megaphone className="h-4 w-4 text-primary" />
+            <p className="mt-2 text-2xl font-bold">{s?.announcements ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">Announcements sent</p>
+          </Card>
+        </Link>
+      </div>
+
+      {/* Signups — last 14 days */}
+      <Card className="border-0 p-4 shadow-card">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold">Registrations</p>
+          <p className="text-xs text-muted-foreground">last 14 days</p>
+        </div>
+        <div className="mt-3 flex h-24 items-end gap-1">
+          {(s?.signupsByDay ?? []).map((d) => (
+            <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
+              <div
+                className={`w-full rounded-t-sm ${d.count > 0 ? "bg-primary" : "bg-muted"}`}
+                style={{ height: `${Math.max(4, (d.count / maxSignups) * 76)}px` }}
+                title={`${d.date}: ${d.count}`}
+              />
+              <span className="text-[9px] text-muted-foreground">{d.date.slice(8)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {s?.networkingOptIn ?? 0} of {s?.attendees ?? 0} attendees opted into networking
+        </p>
+      </Card>
+
+      {/* Programme readiness — sessions per day */}
+      <Card className="border-0 p-4 shadow-card">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold">Programme readiness</p>
+          <Link to="/admin/sessions" className="flex items-center gap-0.5 text-xs font-medium text-primary">
+            Manage <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="mt-3 flex h-24 items-end gap-2">
+          {(s?.sessionsByDay ?? []).map(({ day, count }) => (
+            <div key={day} className="flex flex-1 flex-col items-center gap-1">
+              <span className="text-[10px] font-semibold text-foreground">{count || ""}</span>
+              <div
+                className={`w-full rounded-t-sm ${count > 0 ? "bg-primary" : "bg-destructive/30"}`}
+                style={{ height: `${Math.max(6, (count / maxSessions) * 56)}px` }}
+              />
+              <span className="text-[9px] text-muted-foreground">D{day}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {s?.sessions ?? 0} sessions · {s?.speakers ?? 0} speakers · {s?.hotels ?? 0} partner hotels
+        </p>
+      </Card>
+
+      {/* Kitchen funnel */}
+      <Card className="border-0 p-4 shadow-card">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold">Kitchen pipeline</p>
+          <Link to="/admin/orders" className="flex items-center gap-0.5 text-xs font-medium text-primary">
+            Order board <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {([
+            ["Pending", s?.ordersByStatus.pending],
+            ["Prepping", s?.ordersByStatus.preparing],
+            ["Ready", s?.ordersByStatus.ready],
+            ["Served", s?.ordersByStatus.delivered],
+          ] as const).map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-muted/60 p-2.5 text-center">
+              <p className="text-lg font-bold">{value ?? "—"}</p>
+              <p className="text-[10px] text-muted-foreground">{label}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {isSuper && (
+        <p className="text-xs text-muted-foreground">
+          Super Admin: every section is yours. Each staff role also gets a focused
+          control center with just their live queues.
+        </p>
+      )}
     </div>
   );
 }
